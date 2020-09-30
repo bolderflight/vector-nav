@@ -390,7 +390,7 @@ struct VpeAccelerometerBasicTuning {
 
 struct MagnetometerCalibrationControl {
   static const uint8_t id = 44;
-  static const uint8_t size = 4;
+  static const uint8_t size = 3;
   static const bool read_only = false;
   struct {
     uint8_t hsi_mode;
@@ -425,7 +425,7 @@ struct MagneticGravityReferenceVectors {
 
 struct ReferenceVectorConfiguration {
   static const uint8_t id = 83;
-  static const uint8_t size = 32;
+  static const uint8_t size = 40;
   static const bool read_only = false;
   struct {
     uint8_t use_mag_model;
@@ -448,7 +448,7 @@ namespace vn100 {
 
 struct VelocityCompensationControl {
   static const uint8_t id = 51;
-  static const uint8_t size = 8;
+  static const uint8_t size = 12;
   static const bool read_only = false;
   struct {
     uint8_t mode;

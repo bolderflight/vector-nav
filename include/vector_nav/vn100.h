@@ -21,15 +21,17 @@ class Vn100 {
   bool Begin();
   bool EnableDrdyInt(uint16_t srd);
   bool DisableDrdyInt();
-  void rotation(Eigen::Matrix3f c);
-  Eigen::Matrix3f rotation();
-  void dlpf_bandwidth(float hz);
-  float dlpf_bandwidth();
+  bool ApplyRotation(Eigen::Matrix3f c);
+  bool GetRotation(Eigen::Matrix3f *c);
+  bool SetDlpfBandwidth(float hz);
+  bool GetDlpfBandwidth(float *hz);
   void DrdyCallback(uint8_t int_pin, void (*function)());
   bool Read();
+  inline VectorNav::ErrorCode error_code() {return error_code_;}
 
  private:
   VectorNav vector_nav_;
+  VectorNav::ErrorCode error_code_;
 };
 
 }

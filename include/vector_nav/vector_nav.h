@@ -28,6 +28,7 @@ class VectorNav {
     ERROR_WATCHDOG_RESET = 10,
     ERROR_OUTPUT_BUFFER_OVERFLOW = 11,
     ERROR_INSUFFICIENT_BAUD_RATE = 12,
+    ERROR_NULL_PTR = 13,
     ERROR_ERROR_BUFFER_OVERFLOW = 255
   };
   VectorNav(SPIClass *bus, uint8_t cs) : bus_(bus), cs_(cs) {}
@@ -112,13 +113,101 @@ class VectorNav {
   }
   /* Write command */
   void WriteSettings() {
+    /* Delay if necessary */
+    if (time_since_comm_us_ < WAIT_TIME_US_) {
+      delayMicroseconds(WAIT_TIME_US_ - time_since_comm_us_);
+    }
+    /* Write register */
+    bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    digitalWriteFast(cs_, LOW);
+    bus_->transfer(CMD_WRITE_SETTINGS_);
+    bus_->transfer(0x00);
+    bus_->transfer(0x00);
+    bus_->transfer(0x00);
+    digitalWriteFast(cs_, HIGH);  
+    /* Wait for VectorNav to fill response buffer */
+    delayMicroseconds(WAIT_TIME_US_);
+    /* Read the response buffer header */
+    digitalWriteFast(cs_, LOW);
+    empty_ = bus_->transfer(0x00);
+    cmd_ = bus_->transfer(0x00);
+    arg_ = bus_->transfer(0x00);
+    err_ = bus_->transfer(0x00);
+    digitalWriteFast(cs_, HIGH);
+    bus_->endTransaction();
+    time_since_comm_us_ = 0;
+
+    Serial.println("-----");
+    Serial.println(empty_);
+    Serial.println(cmd_);
+    Serial.println(arg_);
+    Serial.println(err_);
+    Serial.println("-----");
 
   }
   void RestoreFactorySettings() {
+    /* Delay if necessary */
+    if (time_since_comm_us_ < WAIT_TIME_US_) {
+      delayMicroseconds(WAIT_TIME_US_ - time_since_comm_us_);
+    }
+    /* Write register */
+    bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    digitalWriteFast(cs_, LOW);
+    bus_->transfer(CMD_WRITE_SETTINGS_);
+    bus_->transfer(0x00);
+    bus_->transfer(0x00);
+    bus_->transfer(0x00);
+    digitalWriteFast(cs_, HIGH);  
+    /* Wait for VectorNav to fill response buffer */
+    delay(2000);
+    /* Read the response buffer header */
+    digitalWriteFast(cs_, LOW);
+    empty_ = bus_->transfer(0x00);
+    cmd_ = bus_->transfer(0x00);
+    arg_ = bus_->transfer(0x00);
+    err_ = bus_->transfer(0x00);
+    digitalWriteFast(cs_, HIGH);
+    bus_->endTransaction();
+    time_since_comm_us_ = 0;
 
+    Serial.println("-----");
+    Serial.println(empty_);
+    Serial.println(cmd_);
+    Serial.println(arg_);
+    Serial.println(err_);
+    Serial.println("-----");
   }
   void Reset() {
+    /* Delay if necessary */
+    if (time_since_comm_us_ < WAIT_TIME_US_) {
+      delayMicroseconds(WAIT_TIME_US_ - time_since_comm_us_);
+    }
+    /* Write register */
+    bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    digitalWriteFast(cs_, LOW);
+    bus_->transfer(CMD_WRITE_SETTINGS_);
+    bus_->transfer(0x00);
+    bus_->transfer(0x00);
+    bus_->transfer(0x00);
+    digitalWriteFast(cs_, HIGH);  
+    /* Wait for VectorNav to fill response buffer */
+    delay(2500);
+    /* Read the response buffer header */
+    digitalWriteFast(cs_, LOW);
+    empty_ = bus_->transfer(0x00);
+    cmd_ = bus_->transfer(0x00);
+    arg_ = bus_->transfer(0x00);
+    err_ = bus_->transfer(0x00);
+    digitalWriteFast(cs_, HIGH);
+    bus_->endTransaction();
+    time_since_comm_us_ = 0;
 
+    Serial.println("-----");
+    Serial.println(empty_);
+    Serial.println(cmd_);
+    Serial.println(arg_);
+    Serial.println(err_);
+    Serial.println("-----");
   }
 
   /* VN-100 */
@@ -137,16 +226,12 @@ class VectorNav {
 
   }
 
-  // void SetInitialHeading(float heading) {
-    // checking with VectorNav on this
-  // }
-
  private:
   /* SPI */
   SPIClass *bus_;
   uint8_t cs_;
   static constexpr uint32_t SPI_CLOCK_ = 16000000;
-  static constexpr uint8_t WAIT_TIME_US_ = 50;
+  static constexpr uint8_t WAIT_TIME_US_ = 100;
   elapsedMicros time_since_comm_us_ = WAIT_TIME_US_;
   /* Response header */
   uint8_t cmd_, arg_, empty_, err_;
