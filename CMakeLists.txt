@@ -34,8 +34,14 @@ if (DEFINED MCU)
 	FetchContent_MakeAvailable(global_defs)
 	# Add the library target
 	add_library(vector_nav
-		src/vector_nav/vector_nav.cc
 		include/vector_nav/vector_nav.h
+		include/vector_nav/registers.h
+		include/vector_nav/vn100.h
+		include/vector_nav/vn200.h
+		include/vector_nav/vn300.h
+		src/vector_nav/vn100.cc
+		src/vector_nav/vn200.cc
+		src/vector_nav/vn300.cc
 	)
 	# Link libraries
 	target_link_libraries(vector_nav
@@ -46,9 +52,9 @@ if (DEFINED MCU)
 	)
 	# Setup include directories 
 	target_include_directories(vector_nav PUBLIC 
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:include>
-	)
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:include>
+)
 endif()
 
 # Example and test if this project is built separately
