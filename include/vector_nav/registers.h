@@ -171,7 +171,7 @@ struct ReferenceFrameRotation {
 
 struct ImuFilteringConfiguration {
   static const uint8_t id = 85;
-  static const uint8_t size = 15;
+  static const uint8_t size = 16;
   static const bool read_only = false;
   struct {
     uint16_t mag_window_size;
@@ -184,6 +184,7 @@ struct ImuFilteringConfiguration {
     uint8_t gyro_filter_mode;
     uint8_t temp_filter_mode;
     uint8_t pres_filter_mode;
+    uint8_t padding;
   } payload;
 };
 

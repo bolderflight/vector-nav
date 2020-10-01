@@ -18,36 +18,27 @@ namespace sensors {
 bool Vn100::Begin() {
   vector_nav_.Init();
   vector_nav_.RestoreFactorySettings();
-  vector_nav::common::SerialNumber serial_num;
-  error_code_ = vector_nav_.ReadRegister(&serial_num);
+  error_code_ = vector_nav_.ReadRegister(&serial_num_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
-bool Vn100::EnableDrdyInt(uint16_t srd) {
-  vector_nav::common::SynchronizationControl sync_cntrl;
-  error_code_ = vector_nav_.ReadRegister(&sync_cntrl);
+bool Vn100::EnableDrdyInt(DrdyMode mode, uint16_t srd) {
+  error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  enum SyncOutMode : uint8_t {
-    NONE = 0,
-    IMU_START = 1,
-    IMU_READY = 2,
-    AHRS = 3
-  };
   enum SyncOutPolarity : uint8_t {
     NEG_PULSE = 0,
     POS_PULSE = 1
   };
-  sync_cntrl.payload.sync_out_mode = AHRS;
-  sync_cntrl.payload.sync_out_polarity = POS_PULSE;
-  sync_cntrl.payload.sync_out_pulse_width = 500000;
-  sync_cntrl.payload.sync_out_skip_factor = srd;
-  error_code_ = vector_nav_.WriteRegister(sync_cntrl);
+  sync_cntrl_.payload.sync_out_mode = static_cast<uint8_t>(mode);
+  sync_cntrl_.payload.sync_out_polarity = POS_PULSE;
+  sync_cntrl_.payload.sync_out_pulse_width = 500000;
+  sync_cntrl_.payload.sync_out_skip_factor = srd;
+  error_code_ = vector_nav_.WriteRegister(sync_cntrl_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
 bool Vn100::DisableDrdyInt() {
-  vector_nav::common::SynchronizationControl sync_cntrl;
-  error_code_ = vector_nav_.ReadRegister(&sync_cntrl);
+  error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   enum SyncOutMode : uint8_t {
     NONE = 0,
@@ -55,19 +46,18 @@ bool Vn100::DisableDrdyInt() {
     IMU_READY = 2,
     AHRS = 3
   };
-  sync_cntrl.payload.sync_out_mode = NONE;
-  error_code_ = vector_nav_.WriteRegister(sync_cntrl);
+  sync_cntrl_.payload.sync_out_mode = static_cast<uint8_t>(NONE);
+  error_code_ = vector_nav_.WriteRegister(sync_cntrl_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
 bool Vn100::ApplyRotation(Eigen::Matrix3f c) {
-  vector_nav::common::ReferenceFrameRotation rot;
   for (std::size_t m = 0; m < 3; m++) {
     for (std::size_t n = 0; n < 3; n++) {
-      rot.payload.c[m][n] = c(m, n);
+      rotation_.payload.c[m][n] = c(m, n);
     }
   }
-  error_code_ = vector_nav_.WriteRegister(rot);
+  error_code_ = vector_nav_.WriteRegister(rotation_);
   vector_nav_.WriteSettings();
   vector_nav_.Reset();
   return (error_code_ == VectorNav::ERROR_SUCCESS);
@@ -78,92 +68,189 @@ bool Vn100::GetRotation(Eigen::Matrix3f *c) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;
   }
-  vector_nav::common::ReferenceFrameRotation rot;
-  error_code_ = vector_nav_.ReadRegister(&rot);
+  error_code_ = vector_nav_.ReadRegister(&rotation_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   for (std::size_t m = 0; m < 3; m++) {
     for (std::size_t n = 0; n < 3; n++) {
-      (*c)(m, n) = rot.payload.c[m][n];
+      (*c)(m, n) = rotation_.payload.c[m][n];
     }
   }
   return true;
 }
 
-// bool Vn100::SetDlpfBandwidth(float hz) {
-//   enum ImuFilteringModes : uint8_t {
-//     NONE = 0,
-//     UNCOMP_ONLY = 1,
-//     COMP_ONLY = 2,
-//     BOTH = 3
-//   };
-//   static constexpr float fs_hz = 800.0f;
-//   float f = hz / fs_hz;
-//   uint16_t window = ceil(static_cast<uint16_t>(sqrtf(0.196202f + f * f) / f));
-//   vector_nav::common::ImuFilteringConfiguration filter;
-//   filter.payload.mag_window_size = window;
-//   filter.payload.accel_window_size = window;
-//   filter.payload.gyro_window_size = window;
-//   filter.payload.pres_window_size = window;
-//   filter.payload.temp_window_size = window;
-//   filter.payload.mag_filter_mode = BOTH;
-//   filter.payload.accel_filter_mode = BOTH;
-//   filter.payload.gyro_filter_mode = BOTH;
-//   filter.payload.pres_filter_mode = UNCOMP_ONLY;
-//   filter.payload.temp_filter_mode = UNCOMP_ONLY;
-//   error_code_ = vector_nav_.WriteRegister(filter);
-//   return (error_code_ == VectorNav::ERROR_SUCCESS);
-// }
+bool Vn100::SetMagFilter(FilterMode mode, uint16_t window) {
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  filter_.payload.mag_filter_mode = static_cast<uint8_t>(mode);
+  filter_.payload.mag_window_size = window;
+  error_code_ = vector_nav_.WriteRegister(filter_);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
 
-// bool Vn100::GetDlpfBandwidth(float *hz) {
-//   if (!hz) {
-//     error_code_ = VectorNav::ERROR_NULL_PTR;
-//     return false;
-//   }
-//   vector_nav::common::ImuFilteringConfiguration filter;
-//   error_code_ = vector_nav_.ReadRegister(&filter);
-//   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-//   float window = static_cast<float>(filter.payload.mag_window_size);
-//   float f = 0.442947f / sqrtf(window * window - 1.0f);
+bool Vn100::GetMagFilter(FilterMode *mode, uint16_t *window) {
+  if ((!mode) || (!window)) {
+    error_code_ = VectorNav::ERROR_NULL_PTR;
+    return false;
+  }
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  *mode = static_cast<FilterMode>(filter_.payload.mag_filter_mode);
+  *window = filter_.payload.mag_window_size;
+  return true;
+}
 
-// }
+bool Vn100::SetAccelFilter(FilterMode mode, uint16_t window) {
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  filter_.payload.accel_filter_mode = static_cast<uint8_t>(mode);
+  filter_.payload.accel_window_size = window;
+  error_code_ = vector_nav_.WriteRegister(filter_);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
+
+bool Vn100::GetAccelFilter(FilterMode *mode, uint16_t *window) {
+  if ((!mode) || (!window)) {
+    error_code_ = VectorNav::ERROR_NULL_PTR;
+    return false;
+  }
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  *mode = static_cast<FilterMode>(filter_.payload.accel_filter_mode);
+  *window = filter_.payload.accel_window_size;
+  return true;
+}
+
+bool Vn100::SetGyroFilter(FilterMode mode, uint16_t window) {
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  filter_.payload.gyro_filter_mode = static_cast<uint8_t>(mode);
+  filter_.payload.gyro_window_size = window;
+  error_code_ = vector_nav_.WriteRegister(filter_);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
+
+bool Vn100::GetGyroFilter(FilterMode *mode, uint16_t *window) {
+  if ((!mode) || (!window)) {
+    error_code_ = VectorNav::ERROR_NULL_PTR;
+    return false;
+  }
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  *mode = static_cast<FilterMode>(filter_.payload.gyro_filter_mode);
+  *window = filter_.payload.gyro_window_size;
+  return true;
+}
+
+bool Vn100::SetTemperatureFilter(FilterMode mode, uint16_t window) {
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  filter_.payload.temp_filter_mode = static_cast<uint8_t>(mode);
+  filter_.payload.temp_window_size = window;
+  error_code_ = vector_nav_.WriteRegister(filter_);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
+
+bool Vn100::GetTemperatureFilter(FilterMode *mode, uint16_t *window) {
+  if ((!mode) || (!window)) {
+    error_code_ = VectorNav::ERROR_NULL_PTR;
+    return false;
+  }
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  *mode = static_cast<FilterMode>(filter_.payload.temp_filter_mode);
+  *window = filter_.payload.temp_window_size;
+  return true;
+}
+
+bool Vn100::SetPressureFilter(FilterMode mode, uint16_t window) {
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  filter_.payload.pres_filter_mode = static_cast<uint8_t>(mode);
+  filter_.payload.pres_window_size = window;
+  error_code_ = vector_nav_.WriteRegister(filter_);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
+
+bool Vn100::GetPressureFilter(FilterMode *mode, uint16_t *window) {
+  if ((!mode) || (!window)) {
+    error_code_ = VectorNav::ERROR_NULL_PTR;
+    return false;
+  }
+  error_code_ = vector_nav_.ReadRegister(&filter_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  *mode = static_cast<FilterMode>(filter_.payload.pres_filter_mode);
+  *window = filter_.payload.pres_window_size;
+  return true;
+}
+
 
 void Vn100::DrdyCallback(uint8_t int_pin, void (*function)()) {
   pinMode(int_pin, INPUT);
   attachInterrupt(int_pin, function, RISING);
 }
 
+bool Vn100::VelocityCompensation(float speed_mps) {
+  vel_comp_.payload.velocity_x = speed_mps;
+  vel_comp_.payload.velocity_y = 0.0f;
+  vel_comp_.payload.velocity_z = 0.0f;
+  error_code_ = vector_nav_.WriteRegister(vel_comp_);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
+
 bool Vn100::Read() {
-  vector_nav::common::YawPitchRollMagneticAccelerationAngularRates attitude;
-  vector_nav::common::ImuMeasurements imu;
-  error_code_ = vector_nav_.ReadRegister(&attitude);
+  error_code_ = vector_nav_.ReadRegister(&attitude_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  error_code_ = vector_nav_.ReadRegister(&imu);
+  error_code_ = vector_nav_.ReadRegister(&imu_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  /* Store data */
-  ypr_rad_(0) = global::conversions::Deg_to_Rad(attitude.payload.yaw);
-  ypr_rad_(1) = global::conversions::Deg_to_Rad(attitude.payload.pitch);
-  ypr_rad_(2) = global::conversions::Deg_to_Rad(attitude.payload.roll);
-  mag_ut_(0) = attitude.payload.mag_x / 100.0f;  // gauss to uT
-  mag_ut_(1) = attitude.payload.mag_y / 100.0f;
-  mag_ut_(2) = attitude.payload.mag_z / 100.0f;
-  accel_mps2_(0) = attitude.payload.accel_x;
-  accel_mps2_(1) = attitude.payload.accel_y;
-  accel_mps2_(2) = attitude.payload.accel_z;
-  gyro_radps_(0) = attitude.payload.gyro_x;
-  gyro_radps_(1) = attitude.payload.gyro_y;
-  gyro_radps_(2) = attitude.payload.gyro_z;
-  uncomp_mag_ut_(0) = imu.payload.mag_x / 100.0f;  // gauss to uT
-  uncomp_mag_ut_(1) = imu.payload.mag_y / 100.0f;
-  uncomp_mag_ut_(2) = imu.payload.mag_z / 100.0f;
-  uncomp_accel_mps2_(0) = imu.payload.accel_x;
-  uncomp_accel_mps2_(1) = imu.payload.accel_y;
-  uncomp_accel_mps2_(2) = imu.payload.accel_z;
-  uncomp_gyro_radps_(0) = imu.payload.gyro_x;
-  uncomp_gyro_radps_(1) = imu.payload.gyro_y;
-  uncomp_gyro_radps_(2) = imu.payload.gyro_z;
-  die_temp_c_ = imu.payload.temp;
-  pressure_pa_ = imu.payload.pressure * 1000.0f;  // kPa to Pa
   return true;
+}
+
+Eigen::Vector3f Vn100::accel_mps2() {
+  Eigen::Vector3f accel;
+  accel(0) = attitude_.payload.accel_x;
+  accel(1) = attitude_.payload.accel_y;
+  accel(2) = attitude_.payload.accel_z;
+  return accel;
+}
+
+Eigen::Vector3f Vn100::gyro_radps() {
+  Eigen::Vector3f gyro;
+  gyro(0) = attitude_.payload.gyro_x;
+  gyro(1) = attitude_.payload.gyro_y;
+  gyro(2) = attitude_.payload.gyro_z;
+  return gyro;
+}
+
+Eigen::Vector3f Vn100::mag_ut() {
+  Eigen::Vector3f mag;
+  mag(0) = global::conversions::Gauss_to_uT(attitude_.payload.mag_x);
+  mag(1) = global::conversions::Gauss_to_uT(attitude_.payload.mag_y);
+  mag(2) = global::conversions::Gauss_to_uT(attitude_.payload.mag_z);
+  return mag;
+}
+
+Eigen::Vector3f Vn100::uncomp_accel_mps2() {
+  Eigen::Vector3f accel;
+  accel(0) = imu_.payload.accel_x;
+  accel(1) = imu_.payload.accel_y;
+  accel(2) = imu_.payload.accel_z;
+  return accel;
+}
+
+Eigen::Vector3f Vn100::uncomp_gyro_radps() {
+  Eigen::Vector3f gyro;
+  gyro(0) = imu_.payload.gyro_x;
+  gyro(1) = imu_.payload.gyro_y;
+  gyro(2) = imu_.payload.gyro_z;
+  return gyro;
+}
+
+Eigen::Vector3f Vn100::uncomp_mag_ut() {
+  Eigen::Vector3f mag;
+  mag(0) = global::conversions::Gauss_to_uT(imu_.payload.mag_x);
+  mag(1) = global::conversions::Gauss_to_uT(imu_.payload.mag_y);
+  mag(2) = global::conversions::Gauss_to_uT(imu_.payload.mag_z);
+  return mag;
 }
 
 }  // namespace sensors
