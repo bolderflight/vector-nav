@@ -17,7 +17,6 @@ namespace sensors {
 
 bool Vn100::Begin() {
   vector_nav_.Init();
-  vector_nav_.RestoreFactorySettings();
   error_code_ = vector_nav_.ReadRegister(&serial_num_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
@@ -40,12 +39,6 @@ bool Vn100::EnableDrdyInt(DrdyMode mode, uint16_t srd) {
 bool Vn100::DisableDrdyInt() {
   error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  enum SyncOutMode : uint8_t {
-    NONE = 0,
-    IMU_START = 1,
-    IMU_READY = 2,
-    AHRS = 3
-  };
   sync_cntrl_.payload.sync_out_mode = static_cast<uint8_t>(NONE);
   error_code_ = vector_nav_.WriteRegister(sync_cntrl_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);

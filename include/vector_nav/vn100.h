@@ -20,6 +20,7 @@ namespace sensors {
 class Vn100 {
  public:
   enum DrdyMode : uint8_t {
+    NONE = 0,
     IMU_START = 1,
     IMU_READY = 2,
     AHRS = 3
@@ -51,12 +52,13 @@ class Vn100 {
   bool Read();
 
   /* Commands */
-  void WriteSettings() {vector_nav_.WriteSettings();}
+  VectorNav::ErrorCode WriteSettings() {return vector_nav_.WriteSettings();}
   void RestoreFactorySettings() {vector_nav_.RestoreFactorySettings();}
   void Reset() {vector_nav_.Reset();}
-  void Tare() {vector_nav_.Tare();}
-  void KnownMagneticDisturbance(bool present) {vector_nav_.KnownMagneticDisturbance(present);}
-  void KnownAccelerationDisturbance(bool present) {vector_nav_.KnownAccelerationDisturbance(present);}
+  VectorNav::ErrorCode Tare() {return vector_nav_.Tare();}
+  VectorNav::ErrorCode KnownMagneticDisturbance(bool present) {return vector_nav_.KnownMagneticDisturbance(present);}
+  VectorNav::ErrorCode KnownAccelerationDisturbance(bool present) {return vector_nav_.KnownAccelerationDisturbance(present);}
+  VectorNav::ErrorCode SetGyroBias() {return vector_nav_.SetGyroBias();}
 
   /* Data */
   inline float yaw_rad() {return global::conversions::Deg_to_Rad(attitude_.payload.yaw);}

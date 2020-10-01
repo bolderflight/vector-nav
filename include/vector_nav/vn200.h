@@ -1,146 +1,167 @@
-// /*
-// * Brian R Taylor
-// * brian.taylor@bolderflight.com
-// * 
-// * Copyright (c) 2020 Bolder Flight Systems
-// */
+/*
+* Brian R Taylor
+* brian.taylor@bolderflight.com
+* 
+* Copyright (c) 2020 Bolder Flight Systems
+*/
 
-// #ifndef INCLUDE_VECTOR_NAV_VN200_H_
-// #define INCLUDE_VECTOR_NAV_VN200_H_
+#ifndef INCLUDE_VECTOR_NAV_VN200_H_
+#define INCLUDE_VECTOR_NAV_VN200_H_
 
-// #include "Eigen/Core"
-// #include "Eigen/Dense"
-// #include "core/core.h"
-// #include "vector_nav/vector_nav.h"
+#include "Eigen/Core"
+#include "Eigen/Dense"
+#include "core/core.h"
+#include "vector_nav/vector_nav.h"
+#include "vector_nav/registers.h"
+#include "global_defs/global_defs.h"
 
-// namespace sensors {
+namespace sensors {
 
-// class Vn200 {
-//  public:
-//   enum InsMode : uint8_t{
-//     NOT_TRACKING = 0,
-//     DEGRADED = 1,
-//     HEALTHY = 2
-//   };
-//   enum GnssFix : uint8_t {
-//     FIX_NONE = 0,
-//     FIX_TIME_ONLY = 1,
-//     FIX_2D = 2,
-//     FIX_3D = 3
-//   };
-//   Vn200(SPIClass *bus, uint8_t cs) : vector_nav_(bus, cs) {}
-//   bool Begin();
-//   bool EnableDrdyInt(uint16_t srd);
-//   bool DisableDrdyInt();
-//   bool ApplyRotation(Eigen::Matrix3f c);
-//   bool GetRotation(Eigen::Matrix3f *c);
-//   bool SetAntennaOffset(Eigen::Vector3f b);
-//   bool GetAntennaOffset(Eigen::Vector3f *b);
-//   void DrdyCallback(uint8_t int_pin, void (*function)());
-//   bool Read();
-//   inline VectorNav::ErrorCode error_code() {return error_code_;}
-//   inline double ins_time_s() {return ins_time_s_;}
-//   inline uint16_t ins_week() {return ins_week_;}
-//   inline InsMode ins_mode() {return ins_mode_;}
-//   inline bool ins_error() {return ins_error_;}
-//   inline Eigen::Vector3d ins_lla_rad_m() {return ins_lla_rad_m_;}
-//   inline double ins_latitude_rad() {return ins_lla_rad_m_(0);}
-//   inline double ins_longitude_rad() {return ins_lla_rad_m_(1);}
-//   inline double ins_altitude_m() {return ins_lla_rad_m_(2);}
-//   inline Eigen::Vector3f ins_ned_vel_mps() {return ins_ned_vel_mps_;}
-//   inline double ins_north_vel_mps() {return ins_ned_vel_mps_(0);}
-//   inline double ins_east_vel_mps() {return ins_ned_vel_mps_(1);}
-//   inline double ins_down_vel_mps() {return ins_ned_vel_mps_(2);}
-//   inline float ins_att_uncertainty_rad() {return ins_att_uncertainty_rad_;}
-//   inline float ins_pos_uncertainty_m() {return ins_pos_uncertainty_m_;}
-//   inline float ins_vel_uncertainty_mps() {return ins_vel_uncertainty_mps_;}
-//   inline double gnss_time_s() {return gnss_time_s_;}
-//   inline uint16_t gnss_week() {return gnss_week_;}
-//   inline GnssFix gnss_fix() {return gnss_fix_;}
-//   inline uint8_t gnss_num_satellites() {return gnss_num_sv_;}
-//   inline Eigen::Vector3d gnss_lla_rad_m() {return gnss_lla_rad_m_;}
-//   inline double gnss_latitude_rad() {return gnss_lla_rad_m_(0);}
-//   inline double gnss_longitude_rad() {return gnss_lla_rad_m_(1);}
-//   inline double gnss_altitude_m() {return gnss_lla_rad_m_(2);}
-//   inline Eigen::Vector3f gnss_ned_vel_mps() {return gnss_ned_vel_mps_;}
-//   inline double gnss_north_vel_mps() {return gnss_ned_vel_mps_(0);}
-//   inline double gnss_east_vel_mps() {return gnss_ned_vel_mps_(1);}
-//   inline double gnss_down_vel_mps() {return gnss_ned_vel_mps_(2);}
-//   inline double gnss_north_acc_m() {return gnss_ned_acc_m_(0);}
-//   inline double gnss_east_acc_m() {return gnss_ned_acc_m_(1);}
-//   inline double gnss_down_acc_m() {return gnss_ned_acc_m_(2);}
-//   inline double gnss_speed_acc_mps() {return gnss_speed_acc_mps_;}
-//   inline double gnss_time_acc_s() {return gnss_time_acc_s_;}
-//   inline float yaw_rad() {return ypr_rad_(0);}
-//   inline float pitch_rad() {return ypr_rad_(1);}
-//   inline float roll_rad() {return ypr_rad_(2);}
-//   inline Eigen::Vector3f mag_ut() {return mag_ut_;}
-//   inline float mag_x_ut() {return mag_ut_(0);}
-//   inline float mag_y_ut() {return mag_ut_(1);}
-//   inline float mag_z_ut() {return mag_ut_(2);}
-//   inline Eigen::Vector3f accel_mps2() {return accel_mps2_;}
-//   inline float accel_x_mps2() {return accel_mps2_(0);}
-//   inline float accel_y_mps2() {return accel_mps2_(1);}
-//   inline float accel_z_mps2() {return accel_mps2_(2);}
-//   inline Eigen::Vector3f gyro_radps() {return gyro_radps_;}
-//   inline float gyro_x_radps() {return gyro_radps_(0);}
-//   inline float gyro_y_radps() {return gyro_radps_(1);}
-//   inline float gyro_z_radps() {return gyro_radps_(2);}
-//   inline Eigen::Vector3f uncomp_mag_ut() {return uncomp_mag_ut_;}
-//   inline float uncomp_mag_x_ut() {return uncomp_mag_ut_(0);}
-//   inline float uncomp_mag_y_ut() {return uncomp_mag_ut_(1);}
-//   inline float uncomp_mag_z_ut() {return uncomp_mag_ut_(2);}
-//   inline Eigen::Vector3f uncomp_accel_mps2() {return uncomp_accel_mps2_;}
-//   inline float uncomp_accel_x_mps2() {return uncomp_accel_mps2_(0);}
-//   inline float uncomp_accel_y_mps2() {return uncomp_accel_mps2_(1);}
-//   inline float uncomp_accel_z_mps2() {return uncomp_accel_mps2_(2);}
-//   inline Eigen::Vector3f uncomp_gyro_radps() {return uncomp_gyro_radps_;}
-//   inline float uncomp_gyro_x_radps() {return uncomp_gyro_radps_(0);}
-//   inline float uncomp_gyro_y_radps() {return uncomp_gyro_radps_(1);}
-//   inline float uncomp_gyro_z_radps() {return uncomp_gyro_radps_(2);}
-//   inline float die_temperature_c() {return die_temp_c_;}
-//   inline float pressure_pa() {return pressure_pa_;}
-//   /* Commands */
-//   void WriteSettings() {vector_nav_.WriteSettings();}
-//   void RestoreFactorySettings() {vector_nav_.RestoreFactorySettings(();}
-//   void Reset() {vector_nav_.Reset();}
-//   void SetFilterBias();
+class Vn200 {
+ public:
+  enum DrdyMode : uint8_t {
+    NONE = 0,
+    IMU_START = 1,
+    IMU_READY = 2,
+    INS = 3,
+    GNSS_PPS = 6
+  };
+  enum FilterMode : uint8_t {
+    FILTER_NONE = 0,
+    FILTER_UNCOMP_ONLY = 1,
+    FILTER_COMP_ONLY = 2,
+    FILTER_BOTH = 3
+  };
+  enum InsMode : uint8_t{
+    NOT_TRACKING = 0,
+    DEGRADED = 1,
+    HEALTHY = 2
+  };
+  enum GnssFix : uint8_t {
+    FIX_NONE = 0,
+    FIX_TIME_ONLY = 1,
+    FIX_2D = 2,
+    FIX_3D = 3
+  };
+  Vn200(SPIClass *bus, uint8_t cs) : vector_nav_(bus, cs) {}
+  bool Begin();
+  bool EnableDrdyInt(DrdyMode mode, uint16_t srd);
+  bool DisableDrdyInt();
+  bool ApplyRotation(Eigen::Matrix3f c);
+  bool GetRotation(Eigen::Matrix3f *c);
+  bool SetAntennaOffset(Eigen::Vector3f b);
+  bool GetAntennaOffset(Eigen::Vector3f *b);
+  bool SetMagFilter(FilterMode mode, uint16_t window);
+  bool GetMagFilter(FilterMode *mode, uint16_t *window);
+  bool SetAccelFilter(FilterMode mode, uint16_t window);
+  bool GetAccelFilter(FilterMode *mode, uint16_t *window);
+  bool SetGyroFilter(FilterMode mode, uint16_t window);
+  bool GetGyroFilter(FilterMode *mode, uint16_t *window);
+  bool SetTemperatureFilter(FilterMode mode, uint16_t window);
+  bool GetTemperatureFilter(FilterMode *mode, uint16_t *window);
+  bool SetPressureFilter(FilterMode mode, uint16_t window);
+  bool GetPressureFilter(FilterMode *mode, uint16_t *window);
+  void DrdyCallback(uint8_t int_pin, void (*function)());//   bool Read();
+  bool Read();
 
-//  private:
-//   /* Register reading and writing */
-//   VectorNav vector_nav_;
-//   /* Data */
-//   VectorNav::ErrorCode error_code_;
-//   double ins_time_s_;
-//   uint16_t ins_week_;
-//   InsMode ins_mode_;
-//   bool ins_gnss_fix_;
-//   bool ins_error_;
-//   Eigen::Vector3d ins_lla_rad_m_;
-//   Eigen::Vector3f ins_ned_vel_mps_;
-//   float ins_att_uncertainty_rad_;
-//   float ins_pos_uncertainty_m_;
-//   float ins_vel_uncertainty_mps_;
-//   double gnss_time_s_;
-//   uint16_t gnss_week_;
-//   GnssFix gnss_fix_;
-//   uint8_t gnss_num_sv_;
-//   Eigen::Vector3d gnss_lla_rad_m_;
-//   Eigen::Vector3f gnss_ned_vel_mps_;
-//   Eigen::Vector3f gnss_ned_acc_m_;
-//   float gnss_speed_acc_mps_;
-//   float gnss_time_acc_s_;
-//   Eigen::Vector3f ypr_rad_;
-//   Eigen::Vector3f mag_ut_;
-//   Eigen::Vector3f accel_mps2_;
-//   Eigen::Vector3f gyro_radps_;
-//   Eigen::Vector3f uncomp_mag_ut_;
-//   Eigen::Vector3f uncomp_accel_mps2_;
-//   Eigen::Vector3f uncomp_gyro_radps_;
-//   float die_temp_c_;
-//   float pressure_pa_;
-// };
+  /* Commands */
+  VectorNav::ErrorCode WriteSettings() {return vector_nav_.WriteSettings();}
+  void RestoreFactorySettings() {vector_nav_.RestoreFactorySettings();}
+  void Reset() {vector_nav_.Reset();}
+  VectorNav::ErrorCode SetFilterBias() {return vector_nav_.SetFilterBias();}
 
-// }  // namespace sensors
+  /* Data */
+  inline InsMode ins_mode() {return ins_mode_;}
+  inline bool ins_error() {return ins_error_;}
+  inline bool ins_time_error() {return ins_time_error_;}
+  inline bool ins_imu_error() {return ins_imu_error_;}
+  inline bool ins_mag_pres_error() {return ins_mag_press_error_;}
+  inline bool ins_gnss_error() {return ins_gnss_error_;}
+  inline double ins_time_s() {return ins_.payload.time;}
+  inline uint16_t ins_week() {return ins_.payload.week;}
+  inline float yaw_rad() {return global::conversions::Deg_to_Rad(ins_.payload.yaw);}
+  inline float pitch_rad() {return global::conversions::Deg_to_Rad(ins_.payload.pitch);}
+  inline float roll_rad() {return global::conversions::Deg_to_Rad(ins_.payload.roll);}
+  inline double ins_lat_rad() {return global::conversions::Deg_to_Rad(ins_.payload.latitude);}
+  inline double ins_lon_rad() {return global::conversions::Deg_to_Rad(ins_.payload.longitude);}
+  inline double ins_alt_m() {return ins_.payload.altitude;}
+  Eigen::Vector3d ins_lla_rad_m();
+  inline float ins_north_vel_mps() {return ins_.payload.ned_vel_x;}
+  inline float ins_east_vel_mps() {return ins_.payload.ned_vel_y;}
+  inline float ins_down_vel_mps() {return ins_.payload.ned_vel_z;}
+  Eigen::Vector3f ins_ned_vel_mps();
+  inline float ins_att_uncertainty() {return global::conversions::Deg_to_Rad(ins_.payload.att_uncertainty);}
+  inline float ins_pos_uncertainty() {return ins_.payload.pos_uncertainty;}
+  inline float ins_vel_uncertainty() {return ins_.payload.vel_uncertainty;}
+  inline double gnss_time_s() {return gnss_.payload.time;}
+  inline uint16_t gnss_week() {return gnss_.payload.week;}
+  inline GnssFix gnss_fix() {return static_cast<GnssFix>(gnss_.payload.gps_fix);}
+  inline uint8_t gnss_num_satellites() {return gnss_.payload.num_sats;}
+  inline double gnss_lat_rad() {return global::conversions::Deg_to_Rad(gnss_.payload.latitude);}
+  inline double gnss_lon_rad() {return global::conversions::Deg_to_Rad(gnss_.payload.longitude);}
+  inline double gnss_alt_m() {return gnss_.payload.altitude;}
+  Eigen::Vector3d gnss_lla_rad_m();
+  inline float gnss_north_vel_mps() {return gnss_.payload.ned_vel_x;}
+  inline float gnss_east_vel_mps() {return gnss_.payload.ned_vel_y;}
+  inline float gnss_down_vel_mps() {return gnss_.payload.ned_vel_z;}
+  Eigen::Vector3f gnss_ned_vel_mps();
+  inline float gnss_north_acc_m() {return gnss_.payload.north_acc;}
+  inline float gnss_east_acc_m() {return gnss_.payload.east_acc;}
+  inline float gnss_down_acc_m() {return gnss_.payload.vert_acc;}
+  inline float gnss_speed_acc_mps() {return gnss_.payload.speed_acc;}
+  inline float gnss_time_acc_m() {return gnss_.payload.time_acc;}
+  inline float accel_x_mps2() {return comp_imu_.payload.accel_x;}
+  inline float accel_y_mps2() {return comp_imu_.payload.accel_y;}
+  inline float accel_z_mps2() {return comp_imu_.payload.accel_z;}
+  Eigen::Vector3f accel_mps2();
+  inline float gyro_x_radps() {return comp_imu_.payload.gyro_x;}
+  inline float gyro_y_radps() {return comp_imu_.payload.gyro_y;}
+  inline float gyro_z_radps() {return comp_imu_.payload.gyro_z;}
+  Eigen::Vector3f gyro_radps();
+  inline float mag_x_ut() {return global::conversions::Gauss_to_uT(comp_imu_.payload.mag_x);}
+  inline float mag_y_ut() {return global::conversions::Gauss_to_uT(comp_imu_.payload.mag_y);}
+  inline float mag_z_ut() {return global::conversions::Gauss_to_uT(comp_imu_.payload.mag_z);}
+  Eigen::Vector3f mag_ut();
+  inline float uncomp_accel_x_mps2() {return uncomp_imu_.payload.accel_x;}
+  inline float uncomp_accel_y_mps2() {return uncomp_imu_.payload.accel_y;}
+  inline float uncomp_accel_z_mps2() {return uncomp_imu_.payload.accel_z;}
+  Eigen::Vector3f uncomp_accel_mps2();
+  inline float uncomp_gyro_x_radps() {return uncomp_imu_.payload.gyro_x;}
+  inline float uncomp_gyro_y_radps() {return uncomp_imu_.payload.gyro_y;}
+  inline float uncomp_gyro_z_radps() {return uncomp_imu_.payload.gyro_z;}
+  Eigen::Vector3f uncomp_gyro_radps();
+  inline float uncomp_mag_x_ut() {return global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_x);}
+  inline float uncomp_mag_y_ut() {return global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_y);}
+  inline float uncomp_mag_z_ut() {return global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_z);}
+  Eigen::Vector3f uncomp_mag_ut();
+  inline float die_temperature_c() {return uncomp_imu_.payload.temp;}
+  inline float pressure_pa() {return uncomp_imu_.payload.pressure / 1000.0f;}  // kPa to Pa
 
-// #endif  // INCLUDE_VECTOR_NAV_VN200_H_
+ private:
+  /* Register reading and writing */
+  VectorNav vector_nav_;
+  /* Data */
+  uint8_t ins_status_buff_[2];
+  InsMode ins_mode_;
+  bool ins_gnss_fix_;
+  bool ins_error_;
+  bool ins_time_error_;
+  bool ins_imu_error_;
+  bool ins_mag_press_error_;
+  bool ins_gnss_error_;
+  /* Registers */
+  VectorNav::ErrorCode error_code_;
+  vector_nav::common::SerialNumber serial_num_;
+  vector_nav::common::SynchronizationControl sync_cntrl_;
+  vector_nav::common::ReferenceFrameRotation rotation_;
+  vector_nav::vn200::GpsAntennaOffset antenna_;
+  vector_nav::common::ImuFilteringConfiguration filter_;
+  vector_nav::vn200::InsSolutionLla ins_;
+  vector_nav::vn200::GpsSolutionLla gnss_;
+  vector_nav::common::MagneticAccelerationAngularRates comp_imu_;
+  vector_nav::common::ImuMeasurements uncomp_imu_;
+};
+
+}  // namespace sensors
+
+#endif  // INCLUDE_VECTOR_NAV_VN200_H_
