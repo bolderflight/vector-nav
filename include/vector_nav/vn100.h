@@ -89,7 +89,7 @@ class Vn100 {
   inline float uncomp_mag_z_ut() {return global::conversions::Gauss_to_uT(imu_.payload.mag_z);}
   Eigen::Vector3f uncomp_mag_ut();
   inline float die_temperature_c() {return imu_.payload.temp;}
-  inline float pressure_pa() {return imu_.payload.pressure / 1000.0f;}  // kPa to Pa
+  inline float pressure_pa() {return imu_.payload.pressure * 1000.0f;}  // kPa to Pa
 
  private:
   /* Register reading and writing */
