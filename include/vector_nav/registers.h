@@ -343,6 +343,32 @@ struct YawPitchRollTrueInertialAccelerationAngularRates {
   } payload;
 };
 
+struct Heave {
+  static const uint8_t id = 115;
+  static const uint8_t size = 12;
+  static const bool read_only = true;
+  struct {
+    float heave;
+    float heave_rate;
+    float delayed_heave;
+  } payload;
+};
+
+struct HeaveConfiguration {
+  static const uint8_t id = 116;
+  static const uint8_t size = 28;
+  static const bool read_only = false;
+  struct {
+    float initial_wave_period;
+    float initial_wave_amplitude;
+    float max_wave_period;
+    float min_wave_amplitude;
+    float delayed_heave_cutoff_freq;
+    float heave_cutoff_freq;
+    float heave_rate_cutoff_freq;
+  } payload;
+};
+
 struct VpeBasicControl {
   static const uint8_t id = 35;
   static const uint8_t size = 4;
@@ -354,6 +380,64 @@ struct VpeBasicControl {
     uint8_t tuning_mode;
   } payload;
 };
+
+struct MagnetometerCalibrationControl {
+  static const uint8_t id = 44;
+  static const uint8_t size = 4;
+  static const bool read_only = false;
+  struct {
+    uint8_t hsi_mode;
+    uint8_t hsi_output;
+    uint8_t converge_rate;
+  } payload;
+};
+
+struct CalculatedMagnetometerCalibration {
+  static const uint8_t id = 47;
+  static const uint8_t size = 48;
+  static const bool read_only = true;
+  struct {
+    float c[3][3];
+    float b[3];
+  } payload;
+};
+
+struct MagneticGravityReferenceVectors {
+  static const uint8_t id = 21;
+  static const uint8_t size = 24;
+  static const bool read_only = false;
+  struct {
+    float mag_ref_x;
+    float mag_ref_y;
+    float mag_ref_z;
+    float acc_ref_x;
+    float acc_ref_y;
+    float acc_ref_z;
+  } payload;
+};
+
+struct ReferenceVectorConfiguration {
+  static const uint8_t id = 83;
+  static const uint8_t size = 40;  // differs from manual, but confirmed 40 bytes with VN support
+  static const bool read_only = false;
+  struct {
+    uint8_t use_mag_model;
+    uint8_t use_gravity_model;
+    uint8_t resv1 = 0;
+    uint8_t resv2 = 0;
+    uint32_t recalc_threshold;
+    float year;
+    uint8_t padding[4];
+    double latitude;
+    double longitude;
+    double altitude;
+  } payload;
+};
+
+}  // namespace common
+
+/* VN-100 specific registers */
+namespace vn100 {
 
 struct VpeMagnetometerBasicTuning {
   static const uint8_t id = 36;
@@ -389,64 +473,6 @@ struct VpeAccelerometerBasicTuning {
   } payload;
 };
 
-struct MagnetometerCalibrationControl {
-  static const uint8_t id = 44;
-  static const uint8_t size = 3;
-  static const bool read_only = false;
-  struct {
-    uint8_t hsi_mode;
-    uint8_t hsi_output;
-    uint8_t converge_rate;
-  } payload;
-};
-
-struct CalculatedMagnetometerCalibration {
-  static const uint8_t id = 47;
-  static const uint8_t size = 48;
-  static const bool read_only = true;
-  struct {
-    float c[3][3];
-    float b[3];
-  } payload;
-};
-
-struct MagneticGravityReferenceVectors {
-  static const uint8_t id = 21;
-  static const uint8_t size = 24;
-  static const bool read_only = false;
-  struct {
-    float mag_ref_x;
-    float mag_ref_y;
-    float mag_ref_z;
-    float acc_ref_x;
-    float acc_ref_y;
-    float acc_ref_z;
-  } payload;
-};
-
-struct ReferenceVectorConfiguration {
-  static const uint8_t id = 83;
-  static const uint8_t size = 40;
-  static const bool read_only = false;
-  struct {
-    uint8_t use_mag_model;
-    uint8_t use_gravity_model;
-    uint8_t resv1 = 0;
-    uint8_t resv2 = 0;
-    uint32_t recalc_threshold;
-    float year;
-    uint8_t padding[4];
-    double latitude;
-    double longitude;
-    double altitude;
-  } payload;
-};
-
-}  // namespace common
-
-/* VN-100 specific registers */
-namespace vn100 {
-
 struct VelocityCompensationControl {
   static const uint8_t id = 51;
   static const uint8_t size = 12;
@@ -474,7 +500,7 @@ struct VelocityCompensationMeasurement {
 /* VN-200 specific registers */
 namespace vn200 {
 
-struct GpsSolutionLla {
+struct GnssSolutionLla {
   static const uint8_t id = 58;
   static const uint8_t size = 72;
   static const bool read_only = false;
@@ -498,7 +524,7 @@ struct GpsSolutionLla {
   } payload;
 };
 
-struct GpsSolutionEcef {
+struct GnssSolutionEcef {
   static const uint8_t id = 59;
   static const uint8_t size = 72;
   static const bool read_only = false;
@@ -522,20 +548,20 @@ struct GpsSolutionEcef {
   } payload;
 };
 
-struct GpsConfiguration {
-  static const uint8_t id = 5;
+struct GnssConfiguration {
+  static const uint8_t id = 55;
   static const uint8_t size = 5;
   static const bool read_only = false;
   struct {
     uint8_t mode;
     uint8_t pps_source;
-    uint8_t resv1 = 5;
-    uint8_t resv2 = 0;
-    uint8_t resv3 = 0;
+    uint8_t rate = 5;
+    uint8_t time_sync_delta = 0;
+    uint8_t ant_power = 0;
   } payload;
 };
 
-struct GpsAntennaOffset {
+struct GnssAntennaOffset {
   static const uint8_t id = 57;
   static const uint8_t size = 12;
   static const bool read_only = false;
@@ -594,12 +620,13 @@ struct InsSolutionEcef {
 
 struct InsStateLla {
   static const uint8_t id = 72;
-  static const uint8_t size = 72;
+  static const uint8_t size = 80;
   static const bool read_only = true;
   struct {
     float yaw;
     float pitch;
     float roll;
+    uint8_t padding[4];
     double latitude;
     double longitude;
     double altitude;
@@ -617,12 +644,13 @@ struct InsStateLla {
 
 struct InsStateEcef {
   static const uint8_t id = 73;
-  static const uint8_t size = 72;
+  static const uint8_t size = 80;
   static const bool read_only = true;
   struct {
     float yaw;
     float pitch;
     float roll;
+    uint8_t padding[4];
     double position_x;
     double position_y;
     double position_z;

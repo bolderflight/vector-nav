@@ -43,10 +43,20 @@ class Vn200 {
     FIX_2D = 2,
     FIX_3D = 3
   };
+  enum PpsSource : uint8_t {
+    PPS_RISING = 0,
+    PPS_FALLING = 1,
+    SYNC_IN_RISING = 2,
+    SYNC_IN_FALLING = 3
+  };
   Vn200(SPIClass *bus, uint8_t cs) : vector_nav_(bus, cs) {}
   bool Begin();
   bool EnableDrdyInt(DrdyMode mode, uint16_t srd);
   bool DisableDrdyInt();
+  bool EnableExternalGnss(PpsSource pps);
+  bool DisableExternalGnss();
+  bool SendExternalGnssData(const vector_nav::vn200::GnssSolutionLla &ref);
+  bool SendExternalGnssData(const vector_nav::vn200::GnssSolutionEcef &ref);
   bool ApplyRotation(Eigen::Matrix3f c);
   bool GetRotation(Eigen::Matrix3f *c);
   bool SetAntennaOffset(Eigen::Vector3f b);
@@ -61,7 +71,7 @@ class Vn200 {
   bool GetTemperatureFilter(FilterMode *mode, uint16_t *window);
   bool SetPressureFilter(FilterMode mode, uint16_t window);
   bool GetPressureFilter(FilterMode *mode, uint16_t *window);
-  void DrdyCallback(uint8_t int_pin, void (*function)());//   bool Read();
+  void DrdyCallback(uint8_t int_pin, void (*function)());
   bool Read();
 
   /* Commands */
@@ -69,6 +79,9 @@ class Vn200 {
   void RestoreFactorySettings() {vector_nav_.RestoreFactorySettings();}
   void Reset() {vector_nav_.Reset();}
   VectorNav::ErrorCode SetFilterBias() {return vector_nav_.SetFilterBias();}
+  VectorNav::ErrorCode KnownMagneticDisturbance(bool present) {return vector_nav_.KnownMagneticDisturbance(present);}
+  VectorNav::ErrorCode KnownAccelerationDisturbance(bool present) {return vector_nav_.KnownAccelerationDisturbance(present);}
+  VectorNav::ErrorCode SetGyroBias() {return vector_nav_.SetGyroBias();}
 
   /* Data */
   inline InsMode ins_mode() {return ins_mode_;}
@@ -154,10 +167,10 @@ class Vn200 {
   vector_nav::common::SerialNumber serial_num_;
   vector_nav::common::SynchronizationControl sync_cntrl_;
   vector_nav::common::ReferenceFrameRotation rotation_;
-  vector_nav::vn200::GpsAntennaOffset antenna_;
+  vector_nav::vn200::GnssAntennaOffset antenna_;
   vector_nav::common::ImuFilteringConfiguration filter_;
   vector_nav::vn200::InsSolutionLla ins_;
-  vector_nav::vn200::GpsSolutionLla gnss_;
+  vector_nav::vn200::GnssSolutionLla gnss_;
   vector_nav::common::MagneticAccelerationAngularRates comp_imu_;
   vector_nav::common::ImuMeasurements uncomp_imu_;
 };

@@ -73,6 +73,9 @@ class Vn300 {
   void RestoreFactorySettings() {vector_nav_.RestoreFactorySettings();}
   void Reset() {vector_nav_.Reset();}
   VectorNav::ErrorCode SetFilterBias() {return vector_nav_.SetFilterBias();}
+  VectorNav::ErrorCode KnownMagneticDisturbance(bool present) {return vector_nav_.KnownMagneticDisturbance(present);}
+  VectorNav::ErrorCode KnownAccelerationDisturbance(bool present) {return vector_nav_.KnownAccelerationDisturbance(present);}
+  VectorNav::ErrorCode SetGyroBias() {return vector_nav_.SetGyroBias();}
 
   /* Data */
   inline InsMode ins_mode() {return ins_mode_;}
@@ -162,11 +165,11 @@ class Vn300 {
   vector_nav::common::SerialNumber serial_num_;
   vector_nav::common::SynchronizationControl sync_cntrl_;
   vector_nav::common::ReferenceFrameRotation rotation_;
-  vector_nav::vn200::GpsAntennaOffset antenna_;
+  vector_nav::vn200::GnssAntennaOffset antenna_;
   vector_nav::vn300::GpsCompassBaseline baseline_;
   vector_nav::common::ImuFilteringConfiguration filter_;
   vector_nav::vn200::InsSolutionLla ins_;
-  vector_nav::vn200::GpsSolutionLla gnss_;
+  vector_nav::vn200::GnssSolutionLla gnss_;
   vector_nav::common::MagneticAccelerationAngularRates comp_imu_;
   vector_nav::common::ImuMeasurements uncomp_imu_;
 };
