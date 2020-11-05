@@ -44,6 +44,20 @@ bool Vn200::DisableDrdyInt() {
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
+bool Vn200::EnableExternalGnss(Vn200::PpsSource pps) {
+  gnss_config_.payload.mode = 1;  // external GNSS
+  gnss_config_.payload.pps_source = static_cast<uint8_t>(pps);
+  error_code_ = vector_nav_.WriteRegister(gnss_config_);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
+
+bool Vn200::DisableExternalGnss() {
+  gnss_config_.payload.mode = 0;  // internal GNSS
+  gnss_config_.payload.pps_source = 0;
+  error_code_ = vector_nav_.WriteRegister(gnss_config_);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
+
 bool Vn200::ApplyRotation(Eigen::Matrix3f c) {
   for (std::size_t m = 0; m < 3; m++) {
     for (std::size_t n = 0; n < 3; n++) {
@@ -222,6 +236,16 @@ bool Vn200::Read() {
   ins_gnss_error_ = ins_status_buff_[0] & 0x40;
   ins_error_ = ins_time_error_ || ins_imu_error_ || ins_mag_press_error_ || ins_gnss_error_;
   return true;
+}
+
+bool Vn200::SendExternalGnssData(const vector_nav::vn200::GnssSolutionLla &ref) {
+  error_code_ = vector_nav_.WriteRegister(ref);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
+}
+
+bool Vn200::SendExternalGnssData(const vector_nav::vn200::GnssSolutionEcef &ref) {
+  error_code_ = vector_nav_.WriteRegister(ref);
+  return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
 Eigen::Vector3d Vn200::ins_lla_rad_m() {

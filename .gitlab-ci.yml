@@ -8,6 +8,7 @@ Lint:
   script: 
     - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/registers.h
     - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vector_nav.h
+    - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vn.h
     - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vn100.h
     - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vn200.h
     - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vn300.h

@@ -11,7 +11,7 @@
 #include "Eigen/Core"
 #include "Eigen/Dense"
 #include "core/core.h"
-#include "vector_nav/vector_nav.h"
+#include "vector_nav/vn.h"
 #include "vector_nav/registers.h"
 #include "global_defs/global_defs.h"
 
@@ -20,7 +20,6 @@ namespace sensors {
 class Vn300 {
  public:
   enum DrdyMode : uint8_t {
-    NONE = 0,
     IMU_START = 1,
     IMU_READY = 2,
     INS = 3,
@@ -43,39 +42,39 @@ class Vn300 {
     FIX_2D = 2,
     FIX_3D = 3
   };
-  Vn300(SPIClass *bus, uint8_t cs) : vector_nav_(bus, cs) {}
+  Vn300(SPIClass *bus, const uint8_t cs) : vector_nav_(bus, cs) {}
   bool Begin();
-  bool EnableDrdyInt(DrdyMode mode, uint16_t srd);
+  bool EnableDrdyInt(const DrdyMode mode, const uint16_t srd);
   bool DisableDrdyInt();
-  bool ApplyRotation(Eigen::Matrix3f c);
+  bool ApplyRotation(const Eigen::Matrix3f &c);
   bool GetRotation(Eigen::Matrix3f *c);
-  bool SetAntennaOffset(Eigen::Vector3f b);
+  bool SetAntennaOffset(const Eigen::Vector3f &b);
   bool GetAntennaOffset(Eigen::Vector3f *b);
   
-  bool SetCompassBaseline(Eigen::Vector3f pos, Eigen::Vector3f uncert);
+  bool SetCompassBaseline(const Eigen::Vector3f &pos, const Eigen::Vector3f &uncert);
   bool GetCompassBaseline(Eigen::Vector3f *pos, Eigen::Vector3f *uncert);
 
-  bool SetMagFilter(FilterMode mode, uint16_t window);
+  bool SetMagFilter(const FilterMode mode, const uint16_t window);
   bool GetMagFilter(FilterMode *mode, uint16_t *window);
-  bool SetAccelFilter(FilterMode mode, uint16_t window);
+  bool SetAccelFilter(const FilterMode mode, const uint16_t window);
   bool GetAccelFilter(FilterMode *mode, uint16_t *window);
-  bool SetGyroFilter(FilterMode mode, uint16_t window);
+  bool SetGyroFilter(const FilterMode mode, const uint16_t window);
   bool GetGyroFilter(FilterMode *mode, uint16_t *window);
-  bool SetTemperatureFilter(FilterMode mode, uint16_t window);
+  bool SetTemperatureFilter(const FilterMode mode, const uint16_t window);
   bool GetTemperatureFilter(FilterMode *mode, uint16_t *window);
-  bool SetPressureFilter(FilterMode mode, uint16_t window);
+  bool SetPressureFilter(const FilterMode mode, const uint16_t window);
   bool GetPressureFilter(FilterMode *mode, uint16_t *window);
-  void DrdyCallback(uint8_t int_pin, void (*function)());//   bool Read();
+  void DrdyCallback(const uint8_t int_pin, void (*function)());//   bool Read();
   bool Read();
 
   /* Commands */
-  VectorNav::ErrorCode WriteSettings() {return vector_nav_.WriteSettings();}
+  bool WriteSettings() {return vector_nav_.WriteSettings();}
   void RestoreFactorySettings() {vector_nav_.RestoreFactorySettings();}
   void Reset() {vector_nav_.Reset();}
-  VectorNav::ErrorCode SetFilterBias() {return vector_nav_.SetFilterBias();}
-  VectorNav::ErrorCode KnownMagneticDisturbance(bool present) {return vector_nav_.KnownMagneticDisturbance(present);}
-  VectorNav::ErrorCode KnownAccelerationDisturbance(bool present) {return vector_nav_.KnownAccelerationDisturbance(present);}
-  VectorNav::ErrorCode SetGyroBias() {return vector_nav_.SetGyroBias();}
+  bool SetFilterBias() {return vector_nav_.SetFilterBias();}
+  bool KnownMagneticDisturbance(bool present) {return vector_nav_.KnownMagneticDisturbance(present);}
+  bool KnownAccelerationDisturbance(bool present) {return vector_nav_.KnownAccelerationDisturbance(present);}
+  bool SetGyroBias() {return vector_nav_.SetGyroBias();}
 
   /* Data */
   inline InsMode ins_mode() {return ins_mode_;}

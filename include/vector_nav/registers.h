@@ -8,6 +8,8 @@
 #ifndef INCLUDE_VECTOR_NAV_REGISTERS_H_
 #define INCLUDE_VECTOR_NAV_REGISTERS_H_
 
+#include <cstdint>
+
 /*
 * Defines all the available VectorNav registers with their id and data.
 * Namespaces are used to separate common registers from unit
@@ -171,7 +173,7 @@ struct ReferenceFrameRotation {
 
 struct ImuFilteringConfiguration {
   static const uint8_t id = 85;
-  static const uint8_t size = 16;
+  static const uint8_t size = 16;  // tested to work with 16
   static const bool read_only = false;
   struct {
     uint16_t mag_window_size;
@@ -473,6 +475,34 @@ struct VpeAccelerometerBasicTuning {
   } payload;
 };
 
+struct FilterStartupGyroBias {
+  static const uint8_t id = 43;
+  static const uint8_t size = 12;
+  static const bool read_only = false;
+  struct {
+    float gyro_bias_x;
+    float gyro_bias_y;
+    float gyro_bias_z;
+  } payload;
+};
+
+struct VpeGyroBasicTuning {
+  static const uint8_t id = 40;
+  static const uint8_t size = 36;
+  static const bool read_only = false;
+  struct {
+    float base_tuning_x;
+    float base_tuning_y;
+    float base_tuning_z;
+    float adaptive_tuning_x;
+    float adaptive_tuning_y;
+    float adaptive_tuning_z;
+    float adaptive_filtering_x;
+    float adaptive_filtering_y;
+    float adaptive_filtering_z;
+  } payload;
+};
+
 struct VelocityCompensationControl {
   static const uint8_t id = 51;
   static const uint8_t size = 12;
@@ -557,7 +587,7 @@ struct GnssConfiguration {
     uint8_t pps_source;
     uint8_t rate = 5;
     uint8_t time_sync_delta = 0;
-    uint8_t ant_power = 0;
+    uint8_t ant_power = 1;
   } payload;
 };
 

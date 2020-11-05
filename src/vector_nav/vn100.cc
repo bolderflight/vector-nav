@@ -21,7 +21,7 @@ bool Vn100::Begin() {
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
-bool Vn100::EnableDrdyInt(DrdyMode mode, uint16_t srd) {
+bool Vn100::EnableDrdyInt(const DrdyMode mode, const uint16_t srd) {
   error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   enum SyncOutPolarity : uint8_t {
@@ -39,12 +39,12 @@ bool Vn100::EnableDrdyInt(DrdyMode mode, uint16_t srd) {
 bool Vn100::DisableDrdyInt() {
   error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  sync_cntrl_.payload.sync_out_mode = static_cast<uint8_t>(NONE);
+  sync_cntrl_.payload.sync_out_mode = 0;
   error_code_ = vector_nav_.WriteRegister(sync_cntrl_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
-bool Vn100::ApplyRotation(Eigen::Matrix3f c) {
+bool Vn100::ApplyRotation(const Eigen::Matrix3f &c) {
   for (std::size_t m = 0; m < 3; m++) {
     for (std::size_t n = 0; n < 3; n++) {
       rotation_.payload.c[m][n] = c(m, n);
@@ -71,7 +71,7 @@ bool Vn100::GetRotation(Eigen::Matrix3f *c) {
   return true;
 }
 
-bool Vn100::SetMagFilter(FilterMode mode, uint16_t window) {
+bool Vn100::SetMagFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.mag_filter_mode = static_cast<uint8_t>(mode);
@@ -92,7 +92,7 @@ bool Vn100::GetMagFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-bool Vn100::SetAccelFilter(FilterMode mode, uint16_t window) {
+bool Vn100::SetAccelFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.accel_filter_mode = static_cast<uint8_t>(mode);
@@ -113,7 +113,7 @@ bool Vn100::GetAccelFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-bool Vn100::SetGyroFilter(FilterMode mode, uint16_t window) {
+bool Vn100::SetGyroFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.gyro_filter_mode = static_cast<uint8_t>(mode);
@@ -134,7 +134,7 @@ bool Vn100::GetGyroFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-bool Vn100::SetTemperatureFilter(FilterMode mode, uint16_t window) {
+bool Vn100::SetTemperatureFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.temp_filter_mode = static_cast<uint8_t>(mode);
@@ -155,7 +155,7 @@ bool Vn100::GetTemperatureFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-bool Vn100::SetPressureFilter(FilterMode mode, uint16_t window) {
+bool Vn100::SetPressureFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.pres_filter_mode = static_cast<uint8_t>(mode);
@@ -177,9 +177,15 @@ bool Vn100::GetPressureFilter(FilterMode *mode, uint16_t *window) {
 }
 
 
-void Vn100::DrdyCallback(uint8_t int_pin, void (*function)()) {
+bool Vn100::DrdyCallback(const uint8_t int_pin, void (*function)()) {
+  if (!function) {
+    error_code_ = VectorNav::ERROR_NULL_PTR;
+    return false;
+  }
   pinMode(int_pin, INPUT);
   attachInterrupt(int_pin, function, RISING);
+  error_code_ = VectorNav::ERROR_SUCCESS;
+  return true;
 }
 
 bool Vn100::VelocityCompensation(float speed_mps) {

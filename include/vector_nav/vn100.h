@@ -11,7 +11,7 @@
 #include "Eigen/Core"
 #include "Eigen/Dense"
 #include "core/core.h"
-#include "vector_nav/vector_nav.h"
+#include "vector_nav/vn.h"
 #include "vector_nav/registers.h"
 #include "global_defs/global_defs.h"
 
@@ -20,7 +20,6 @@ namespace sensors {
 class Vn100 {
  public:
   enum DrdyMode : uint8_t {
-    NONE = 0,
     IMU_START = 1,
     IMU_READY = 2,
     AHRS = 3
@@ -31,34 +30,35 @@ class Vn100 {
     FILTER_COMP_ONLY = 2,
     FILTER_BOTH = 3
   };
-  Vn100(SPIClass *bus, uint8_t cs) : vector_nav_(bus, cs) {}
+  Vn100(SPIClass *bus, const uint8_t cs) : vector_nav_(bus, cs) {}
   bool Begin();
-  bool EnableDrdyInt(DrdyMode mode, uint16_t srd);
+  bool EnableDrdyInt(const DrdyMode mode, const uint16_t srd);
   bool DisableDrdyInt();
-  bool ApplyRotation(Eigen::Matrix3f c);
+  bool ApplyRotation(const Eigen::Matrix3f &c);
   bool GetRotation(Eigen::Matrix3f *c);
-  bool SetMagFilter(FilterMode mode, uint16_t window);
+  bool SetMagFilter(const FilterMode mode, const uint16_t window);
   bool GetMagFilter(FilterMode *mode, uint16_t *window);
-  bool SetAccelFilter(FilterMode mode, uint16_t window);
+  bool SetAccelFilter(const FilterMode mode, const uint16_t window);
   bool GetAccelFilter(FilterMode *mode, uint16_t *window);
-  bool SetGyroFilter(FilterMode mode, uint16_t window);
+  bool SetGyroFilter(const FilterMode mode, const uint16_t window);
   bool GetGyroFilter(FilterMode *mode, uint16_t *window);
-  bool SetTemperatureFilter(FilterMode mode, uint16_t window);
+  bool SetTemperatureFilter(const FilterMode mode, const uint16_t window);
   bool GetTemperatureFilter(FilterMode *mode, uint16_t *window);
-  bool SetPressureFilter(FilterMode mode, uint16_t window);
+  bool SetPressureFilter(const FilterMode mode, const uint16_t window);
   bool GetPressureFilter(FilterMode *mode, uint16_t *window);
-  void DrdyCallback(uint8_t int_pin, void (*function)());
-  bool VelocityCompensation(float speed_mps);
+  bool DrdyCallback(const uint8_t int_pin, void (*function)());
+  bool VelocityCompensation(const float speed_mps);
   bool Read();
+  inline VectorNav::ErrorCode error_code() {return error_code_;}
 
   /* Commands */
-  VectorNav::ErrorCode WriteSettings() {return vector_nav_.WriteSettings();}
+  bool WriteSettings() {return (vector_nav_.WriteSettings() == VectorNav::ERROR_SUCCESS);}
   void RestoreFactorySettings() {vector_nav_.RestoreFactorySettings();}
   void Reset() {vector_nav_.Reset();}
-  VectorNav::ErrorCode Tare() {return vector_nav_.Tare();}
-  VectorNav::ErrorCode KnownMagneticDisturbance(bool present) {return vector_nav_.KnownMagneticDisturbance(present);}
-  VectorNav::ErrorCode KnownAccelerationDisturbance(bool present) {return vector_nav_.KnownAccelerationDisturbance(present);}
-  VectorNav::ErrorCode SetGyroBias() {return vector_nav_.SetGyroBias();}
+  bool Tare() {return (vector_nav_.Tare() == VectorNav::ERROR_SUCCESS);}
+  bool KnownMagneticDisturbance(bool present) {return (vector_nav_.KnownMagneticDisturbance(present) == VectorNav::ERROR_SUCCESS);}
+  bool KnownAccelerationDisturbance(bool present) {return (vector_nav_.KnownAccelerationDisturbance(present) == VectorNav::ERROR_SUCCESS);}
+  bool SetGyroBias() {return (vector_nav_.SetGyroBias() == VectorNav::ERROR_SUCCESS);}
 
   /* Data */
   inline float yaw_rad() {return global::conversions::Deg_to_Rad(attitude_.payload.yaw);}
@@ -105,6 +105,6 @@ class Vn100 {
   vector_nav::common::ImuMeasurements imu_;
 };
 
-}
+}  // namespace sensors
 
 #endif  // INCLUDE_VECTOR_NAV_VN100_H_

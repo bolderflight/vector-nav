@@ -39,6 +39,7 @@ if (DEFINED MCU)
 	add_library(vector_nav
 		include/vector_nav/vector_nav.h
 		include/vector_nav/registers.h
+		include/vector_nav/vn.h
 		include/vector_nav/vn100.h
 		include/vector_nav/vn200.h
 		include/vector_nav/vn300.h
