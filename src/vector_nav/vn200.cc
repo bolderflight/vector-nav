@@ -21,7 +21,7 @@ bool Vn200::Begin() {
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
-bool Vn200::EnableDrdyInt(DrdyMode mode, uint16_t srd) {
+bool Vn200::EnableDrdyInt(const DrdyMode mode, const uint16_t srd) {
   error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   enum SyncOutPolarity : uint8_t {
@@ -39,12 +39,12 @@ bool Vn200::EnableDrdyInt(DrdyMode mode, uint16_t srd) {
 bool Vn200::DisableDrdyInt() {
   error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  sync_cntrl_.payload.sync_out_mode = static_cast<uint8_t>(NONE);
+  sync_cntrl_.payload.sync_out_mode = 0;
   error_code_ = vector_nav_.WriteRegister(sync_cntrl_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
-bool Vn200::EnableExternalGnss(Vn200::PpsSource pps) {
+bool Vn200::EnableExternalGnss(const PpsSource pps) {
   gnss_config_.payload.mode = 1;  // external GNSS
   gnss_config_.payload.pps_source = static_cast<uint8_t>(pps);
   error_code_ = vector_nav_.WriteRegister(gnss_config_);
@@ -58,7 +58,7 @@ bool Vn200::DisableExternalGnss() {
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
-bool Vn200::ApplyRotation(Eigen::Matrix3f c) {
+bool Vn200::ApplyRotation(const Eigen::Matrix3f &c) {
   for (std::size_t m = 0; m < 3; m++) {
     for (std::size_t n = 0; n < 3; n++) {
       rotation_.payload.c[m][n] = c(m, n);
@@ -85,7 +85,7 @@ bool Vn200::GetRotation(Eigen::Matrix3f *c) {
   return true;
 }
 
-bool Vn200::SetAntennaOffset(Eigen::Vector3f b) {
+bool Vn200::SetAntennaOffset(const Eigen::Vector3f &b) {
   antenna_.payload.position_x = b(0);
   antenna_.payload.position_y = b(1);
   antenna_.payload.position_z = b(2);
@@ -106,7 +106,7 @@ bool Vn200::GetAntennaOffset(Eigen::Vector3f *b) {
   return true;
 }
 
-bool Vn200::SetMagFilter(FilterMode mode, uint16_t window) {
+bool Vn200::SetMagFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.mag_filter_mode = static_cast<uint8_t>(mode);
@@ -127,7 +127,7 @@ bool Vn200::GetMagFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-bool Vn200::SetAccelFilter(FilterMode mode, uint16_t window) {
+bool Vn200::SetAccelFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.accel_filter_mode = static_cast<uint8_t>(mode);
@@ -148,7 +148,7 @@ bool Vn200::GetAccelFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-bool Vn200::SetGyroFilter(FilterMode mode, uint16_t window) {
+bool Vn200::SetGyroFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.gyro_filter_mode = static_cast<uint8_t>(mode);
@@ -169,7 +169,7 @@ bool Vn200::GetGyroFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-bool Vn200::SetTemperatureFilter(FilterMode mode, uint16_t window) {
+bool Vn200::SetTemperatureFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.temp_filter_mode = static_cast<uint8_t>(mode);
@@ -190,7 +190,7 @@ bool Vn200::GetTemperatureFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-bool Vn200::SetPressureFilter(FilterMode mode, uint16_t window) {
+bool Vn200::SetPressureFilter(const FilterMode mode, const uint16_t window) {
   error_code_ = vector_nav_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.pres_filter_mode = static_cast<uint8_t>(mode);
@@ -211,9 +211,15 @@ bool Vn200::GetPressureFilter(FilterMode *mode, uint16_t *window) {
   return true;
 }
 
-void Vn200::DrdyCallback(uint8_t int_pin, void (*function)()) {
+bool Vn200::DrdyCallback(const uint8_t int_pin, void (*function)()) {
+  if (!function) {
+    error_code_ = VectorNav::ERROR_NULL_PTR;
+    return false;
+  }
   pinMode(int_pin, INPUT);
   attachInterrupt(int_pin, function, RISING);
+  error_code_ == VectorNav::ERROR_SUCCESS;
+  return true;
 }
 
 bool Vn200::Read() {

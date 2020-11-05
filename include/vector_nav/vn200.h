@@ -68,8 +68,9 @@ class Vn200 {
   bool GetTemperatureFilter(FilterMode *mode, uint16_t *window);
   bool SetPressureFilter(const FilterMode mode, const uint16_t window);
   bool GetPressureFilter(FilterMode *mode, uint16_t *window);
-  void DrdyCallback(const uint8_t int_pin, void (*function)());
+  bool DrdyCallback(const uint8_t int_pin, void (*function)());
   bool Read();
+  inline VectorNav::ErrorCode error_code() {return error_code_;}
   bool SendExternalGnssData(const vector_nav::vn200::GnssSolutionLla &ref);
   bool SendExternalGnssData(const vector_nav::vn200::GnssSolutionEcef &ref);
 

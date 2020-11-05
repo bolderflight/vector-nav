@@ -64,8 +64,10 @@ class Vn300 {
   bool GetTemperatureFilter(FilterMode *mode, uint16_t *window);
   bool SetPressureFilter(const FilterMode mode, const uint16_t window);
   bool GetPressureFilter(FilterMode *mode, uint16_t *window);
-  void DrdyCallback(const uint8_t int_pin, void (*function)());//   bool Read();
+  bool DrdyCallback(const uint8_t int_pin, void (*function)());//   bool Read();
   bool Read();
+  inline VectorNav::ErrorCode error_code() {return error_code_;}
+
 
   /* Commands */
   bool WriteSettings() {return vector_nav_.WriteSettings();}
