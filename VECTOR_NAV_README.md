@@ -3,7 +3,7 @@ This class enables initializing communication with the VectorNav and writing and
 
 ## Methods
 
-**VectorNav(SPIClass &ast;bus, uint8_t cs)** Constructs a *VectorNav* object given a pointer to the SPI bus object that is is communicating over and the chip select pin number.
+**VectorNav(SPIClass &ast;bus, uint8_t cs)** Constructs a *VectorNav* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
 sensors::VectorNav vn(&SPI, 2);

@@ -3,7 +3,7 @@ This class wraps around the *VectorNav* class to provide convenience methods for
 
 ## Methods
 
-**Vn300(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn300* object given a pointer to the SPI bus object that is is communicating over and the chip select pin number.
+**Vn300(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn300* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
 sensors::Vn300 vn(&SPI, 2);
