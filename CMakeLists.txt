@@ -6,7 +6,7 @@ endif()
 # Project information
 project(VectorNav
 	VERSION 1.0.0
-	DESCRIPTION "VectorNav INS driver"
+	DESCRIPTION "VectorNav driver"
 	LANGUAGES CXX
 )
 if (DEFINED MCU)

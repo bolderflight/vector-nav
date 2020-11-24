@@ -31,16 +31,18 @@ class Vn300 {
     FILTER_COMP_ONLY = 2,
     FILTER_BOTH = 3
   };
-  enum InsMode : uint8_t{
+  enum InsMode : uint8_t {
     NOT_TRACKING = 0,
     DEGRADED = 1,
-    HEALTHY = 2
+    HEALTHY = 2,
+    GNSS_LOSS = 3
   };
   enum GnssFix : uint8_t {
     FIX_NONE = 0,
     FIX_TIME_ONLY = 1,
     FIX_2D = 2,
-    FIX_3D = 3
+    FIX_3D = 3,
+    FIX_SBAS = 4
   };
   Vn300(SPIClass *bus, const uint8_t cs) : vector_nav_(bus, cs) {}
   bool Begin();
@@ -50,10 +52,8 @@ class Vn300 {
   bool GetRotation(Eigen::Matrix3f *c);
   bool SetAntennaOffset(const Eigen::Vector3f &b);
   bool GetAntennaOffset(Eigen::Vector3f *b);
-  
   bool SetCompassBaseline(const Eigen::Vector3f &pos, const Eigen::Vector3f &uncert);
   bool GetCompassBaseline(Eigen::Vector3f *pos, Eigen::Vector3f *uncert);
-
   bool SetMagFilter(const FilterMode mode, const uint16_t window);
   bool GetMagFilter(FilterMode *mode, uint16_t *window);
   bool SetAccelFilter(const FilterMode mode, const uint16_t window);
@@ -67,7 +67,6 @@ class Vn300 {
   bool DrdyCallback(const uint8_t int_pin, void (*function)());//   bool Read();
   bool Read();
   inline VectorNav::ErrorCode error_code() {return error_code_;}
-
 
   /* Commands */
   bool WriteSettings() {return vector_nav_.WriteSettings();}
@@ -100,9 +99,9 @@ class Vn300 {
   inline float ins_east_vel_mps() {return ins_.payload.ned_vel_y;}
   inline float ins_down_vel_mps() {return ins_.payload.ned_vel_z;}
   Eigen::Vector3f ins_ned_vel_mps();
-  inline float ins_att_uncertainty() {return global::conversions::Deg_to_Rad(ins_.payload.att_uncertainty);}
-  inline float ins_pos_uncertainty() {return ins_.payload.pos_uncertainty;}
-  inline float ins_vel_uncertainty() {return ins_.payload.vel_uncertainty;}
+  inline float ins_att_uncertainty_rad() {return global::conversions::Deg_to_Rad(ins_.payload.att_uncertainty);}
+  inline float ins_pos_uncertainty_m() {return ins_.payload.pos_uncertainty;}
+  inline float ins_vel_uncertainty_mps() {return ins_.payload.vel_uncertainty;}
   inline double gnss_time_s() {return gnss_.payload.time;}
   inline uint16_t gnss_week() {return gnss_.payload.week;}
   inline GnssFix gnss_fix() {return static_cast<GnssFix>(gnss_.payload.gps_fix);}
@@ -119,7 +118,7 @@ class Vn300 {
   inline float gnss_east_acc_m() {return gnss_.payload.east_acc;}
   inline float gnss_down_acc_m() {return gnss_.payload.vert_acc;}
   inline float gnss_speed_acc_mps() {return gnss_.payload.speed_acc;}
-  inline float gnss_time_acc_m() {return gnss_.payload.time_acc;}
+  inline float gnss_time_acc_s() {return gnss_.payload.time_acc;}
   inline float accel_x_mps2() {return comp_imu_.payload.accel_x;}
   inline float accel_y_mps2() {return comp_imu_.payload.accel_y;}
   inline float accel_z_mps2() {return comp_imu_.payload.accel_z;}
