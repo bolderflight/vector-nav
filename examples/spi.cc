@@ -7,7 +7,7 @@
 
 #include "vector_nav/vector_nav.h"
 
-sensors::Vn100 vn(&SPI, 10);
+sensors::Vn200 vn(&SPI, 10);
 
 int main() {
   Serial.begin(115200);
@@ -19,12 +19,13 @@ int main() {
   while (1) {
     /* Read sensor and print values */
     if (vn.Read()) {
-      Serial.print(vn.yaw_rad());
+      Serial.print(global::conversions::Rad_to_Deg(vn.yaw_rad()));
       Serial.print("\t");
-      Serial.print(vn.pitch_rad());
+      Serial.print(global::conversions::Rad_to_Deg(vn.pitch_rad()));
       Serial.print("\t");
-      Serial.println(vn.roll_rad());
+      Serial.println(global::conversions::Rad_to_Deg(vn.roll_rad()));
     }
+    delay(50);
   }
 }
 
