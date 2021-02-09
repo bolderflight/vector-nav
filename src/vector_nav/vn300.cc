@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2020 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems
 */
 
 #include "vector_nav/vn300.h"
@@ -11,7 +11,7 @@
 #include "core/core.h"
 #include "vector_nav/vector_nav.h"
 #include "vector_nav/registers.h"
-#include "global_defs/global_defs.h"
+#include "units/units.h"
 
 namespace sensors {
 
@@ -261,8 +261,8 @@ bool Vn300::Read() {
 
 Eigen::Vector3d Vn300::ins_lla_rad_m() {
   Eigen::Vector3d lla;
-  lla(0) = global::conversions::Deg_to_Rad(ins_.payload.latitude);
-  lla(1) = global::conversions::Deg_to_Rad(ins_.payload.longitude);
+  lla(0) = conversions::Deg_to_Rad(ins_.payload.latitude);
+  lla(1) = conversions::Deg_to_Rad(ins_.payload.longitude);
   lla(2) = ins_.payload.altitude;
   return lla;
 }
@@ -277,8 +277,8 @@ Eigen::Vector3f Vn300::ins_ned_vel_mps() {
 
 Eigen::Vector3d Vn300::gnss_lla_rad_m() {
   Eigen::Vector3d lla;
-  lla(0) = global::conversions::Deg_to_Rad(gnss_.payload.latitude);
-  lla(1) = global::conversions::Deg_to_Rad(gnss_.payload.longitude);
+  lla(0) = conversions::Deg_to_Rad(gnss_.payload.latitude);
+  lla(1) = conversions::Deg_to_Rad(gnss_.payload.longitude);
   lla(2) = gnss_.payload.altitude;
   return lla;
 }
@@ -309,9 +309,9 @@ Eigen::Vector3f Vn300::gyro_radps() {
 
 Eigen::Vector3f Vn300::mag_ut() {
   Eigen::Vector3f mag;
-  mag(0) = global::conversions::Gauss_to_uT(comp_imu_.payload.mag_x);
-  mag(1) = global::conversions::Gauss_to_uT(comp_imu_.payload.mag_y);
-  mag(2) = global::conversions::Gauss_to_uT(comp_imu_.payload.mag_z);
+  mag(0) = conversions::Gauss_to_uT(comp_imu_.payload.mag_x);
+  mag(1) = conversions::Gauss_to_uT(comp_imu_.payload.mag_y);
+  mag(2) = conversions::Gauss_to_uT(comp_imu_.payload.mag_z);
   return mag;
 }
 
@@ -333,9 +333,9 @@ Eigen::Vector3f Vn300::uncomp_gyro_radps() {
 
 Eigen::Vector3f Vn300::uncomp_mag_ut() {
   Eigen::Vector3f mag;
-  mag(0) = global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_x);
-  mag(1) = global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_y);
-  mag(2) = global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_z);
+  mag(0) = conversions::Gauss_to_uT(uncomp_imu_.payload.mag_x);
+  mag(1) = conversions::Gauss_to_uT(uncomp_imu_.payload.mag_y);
+  mag(2) = conversions::Gauss_to_uT(uncomp_imu_.payload.mag_z);
   return mag;
 }
 

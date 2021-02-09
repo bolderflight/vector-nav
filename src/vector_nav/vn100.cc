@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2020 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems
 */
 
 #include "vector_nav/vn100.h"
@@ -11,7 +11,7 @@
 #include "core/core.h"
 #include "vector_nav/vector_nav.h"
 #include "vector_nav/registers.h"
-#include "global_defs/global_defs.h"
+#include "units/units.h"
 
 namespace sensors {
 
@@ -222,9 +222,9 @@ Eigen::Vector3f Vn100::gyro_radps() {
 
 Eigen::Vector3f Vn100::mag_ut() {
   Eigen::Vector3f mag;
-  mag(0) = global::conversions::Gauss_to_uT(attitude_.payload.mag_x);
-  mag(1) = global::conversions::Gauss_to_uT(attitude_.payload.mag_y);
-  mag(2) = global::conversions::Gauss_to_uT(attitude_.payload.mag_z);
+  mag(0) = conversions::Gauss_to_uT(attitude_.payload.mag_x);
+  mag(1) = conversions::Gauss_to_uT(attitude_.payload.mag_y);
+  mag(2) = conversions::Gauss_to_uT(attitude_.payload.mag_z);
   return mag;
 }
 
@@ -246,9 +246,9 @@ Eigen::Vector3f Vn100::uncomp_gyro_radps() {
 
 Eigen::Vector3f Vn100::uncomp_mag_ut() {
   Eigen::Vector3f mag;
-  mag(0) = global::conversions::Gauss_to_uT(imu_.payload.mag_x);
-  mag(1) = global::conversions::Gauss_to_uT(imu_.payload.mag_y);
-  mag(2) = global::conversions::Gauss_to_uT(imu_.payload.mag_z);
+  mag(0) = conversions::Gauss_to_uT(imu_.payload.mag_x);
+  mag(1) = conversions::Gauss_to_uT(imu_.payload.mag_y);
+  mag(2) = conversions::Gauss_to_uT(imu_.payload.mag_z);
   return mag;
 }
 

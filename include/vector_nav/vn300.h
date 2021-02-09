@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2020 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems
 */
 
 #ifndef INCLUDE_VECTOR_NAV_VN300_H_
@@ -13,7 +13,7 @@
 #include "core/core.h"
 #include "vector_nav/vn.h"
 #include "vector_nav/registers.h"
-#include "global_defs/global_defs.h"
+#include "units/units.h"
 
 namespace sensors {
 
@@ -88,26 +88,26 @@ class Vn300 {
   inline bool ins_gnss_compass() {return ins_gnss_compass_;}
   inline double ins_time_s() {return ins_.payload.time;}
   inline uint16_t ins_week() {return ins_.payload.week;}
-  inline float yaw_rad() {return global::conversions::Deg_to_Rad(ins_.payload.yaw);}
-  inline float pitch_rad() {return global::conversions::Deg_to_Rad(ins_.payload.pitch);}
-  inline float roll_rad() {return global::conversions::Deg_to_Rad(ins_.payload.roll);}
-  inline double ins_lat_rad() {return global::conversions::Deg_to_Rad(ins_.payload.latitude);}
-  inline double ins_lon_rad() {return global::conversions::Deg_to_Rad(ins_.payload.longitude);}
+  inline float yaw_rad() {return conversions::Deg_to_Rad(ins_.payload.yaw);}
+  inline float pitch_rad() {return conversions::Deg_to_Rad(ins_.payload.pitch);}
+  inline float roll_rad() {return conversions::Deg_to_Rad(ins_.payload.roll);}
+  inline double ins_lat_rad() {return conversions::Deg_to_Rad(ins_.payload.latitude);}
+  inline double ins_lon_rad() {return conversions::Deg_to_Rad(ins_.payload.longitude);}
   inline double ins_alt_m() {return ins_.payload.altitude;}
   Eigen::Vector3d ins_lla_rad_m();
   inline float ins_north_vel_mps() {return ins_.payload.ned_vel_x;}
   inline float ins_east_vel_mps() {return ins_.payload.ned_vel_y;}
   inline float ins_down_vel_mps() {return ins_.payload.ned_vel_z;}
   Eigen::Vector3f ins_ned_vel_mps();
-  inline float ins_att_uncertainty_rad() {return global::conversions::Deg_to_Rad(ins_.payload.att_uncertainty);}
+  inline float ins_att_uncertainty_rad() {return conversions::Deg_to_Rad(ins_.payload.att_uncertainty);}
   inline float ins_pos_uncertainty_m() {return ins_.payload.pos_uncertainty;}
   inline float ins_vel_uncertainty_mps() {return ins_.payload.vel_uncertainty;}
   inline double gnss_time_s() {return gnss_.payload.time;}
   inline uint16_t gnss_week() {return gnss_.payload.week;}
   inline GnssFix gnss_fix() {return static_cast<GnssFix>(gnss_.payload.gps_fix);}
   inline uint8_t gnss_num_satellites() {return gnss_.payload.num_sats;}
-  inline double gnss_lat_rad() {return global::conversions::Deg_to_Rad(gnss_.payload.latitude);}
-  inline double gnss_lon_rad() {return global::conversions::Deg_to_Rad(gnss_.payload.longitude);}
+  inline double gnss_lat_rad() {return conversions::Deg_to_Rad(gnss_.payload.latitude);}
+  inline double gnss_lon_rad() {return conversions::Deg_to_Rad(gnss_.payload.longitude);}
   inline double gnss_alt_m() {return gnss_.payload.altitude;}
   Eigen::Vector3d gnss_lla_rad_m();
   inline float gnss_north_vel_mps() {return gnss_.payload.ned_vel_x;}
@@ -127,9 +127,9 @@ class Vn300 {
   inline float gyro_y_radps() {return comp_imu_.payload.gyro_y;}
   inline float gyro_z_radps() {return comp_imu_.payload.gyro_z;}
   Eigen::Vector3f gyro_radps();
-  inline float mag_x_ut() {return global::conversions::Gauss_to_uT(comp_imu_.payload.mag_x);}
-  inline float mag_y_ut() {return global::conversions::Gauss_to_uT(comp_imu_.payload.mag_y);}
-  inline float mag_z_ut() {return global::conversions::Gauss_to_uT(comp_imu_.payload.mag_z);}
+  inline float mag_x_ut() {return conversions::Gauss_to_uT(comp_imu_.payload.mag_x);}
+  inline float mag_y_ut() {return conversions::Gauss_to_uT(comp_imu_.payload.mag_y);}
+  inline float mag_z_ut() {return conversions::Gauss_to_uT(comp_imu_.payload.mag_z);}
   Eigen::Vector3f mag_ut();
   inline float uncomp_accel_x_mps2() {return uncomp_imu_.payload.accel_x;}
   inline float uncomp_accel_y_mps2() {return uncomp_imu_.payload.accel_y;}
@@ -139,9 +139,9 @@ class Vn300 {
   inline float uncomp_gyro_y_radps() {return uncomp_imu_.payload.gyro_y;}
   inline float uncomp_gyro_z_radps() {return uncomp_imu_.payload.gyro_z;}
   Eigen::Vector3f uncomp_gyro_radps();
-  inline float uncomp_mag_x_ut() {return global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_x);}
-  inline float uncomp_mag_y_ut() {return global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_y);}
-  inline float uncomp_mag_z_ut() {return global::conversions::Gauss_to_uT(uncomp_imu_.payload.mag_z);}
+  inline float uncomp_mag_x_ut() {return conversions::Gauss_to_uT(uncomp_imu_.payload.mag_x);}
+  inline float uncomp_mag_y_ut() {return conversions::Gauss_to_uT(uncomp_imu_.payload.mag_y);}
+  inline float uncomp_mag_z_ut() {return conversions::Gauss_to_uT(uncomp_imu_.payload.mag_z);}
   Eigen::Vector3f uncomp_mag_ut();
   inline float die_temperature_c() {return uncomp_imu_.payload.temp;}
   inline float pressure_pa() {return uncomp_imu_.payload.pressure * 1000.0f;}  // kPa to Pa

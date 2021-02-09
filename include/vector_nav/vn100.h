@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2020 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems
 */
 
 #ifndef INCLUDE_VECTOR_NAV_VN100_H_
@@ -13,7 +13,7 @@
 #include "core/core.h"
 #include "vector_nav/vn.h"
 #include "vector_nav/registers.h"
-#include "global_defs/global_defs.h"
+#include "units/units.h"
 
 namespace sensors {
 
@@ -61,9 +61,9 @@ class Vn100 {
   bool SetGyroBias() {return (vector_nav_.SetGyroBias() == VectorNav::ERROR_SUCCESS);}
 
   /* Data */
-  inline float yaw_rad() {return global::conversions::Deg_to_Rad(attitude_.payload.yaw);}
-  inline float pitch_rad() {return global::conversions::Deg_to_Rad(attitude_.payload.pitch);}
-  inline float roll_rad() {return global::conversions::Deg_to_Rad(attitude_.payload.roll);}
+  inline float yaw_rad() {return conversions::Deg_to_Rad(attitude_.payload.yaw);}
+  inline float pitch_rad() {return conversions::Deg_to_Rad(attitude_.payload.pitch);}
+  inline float roll_rad() {return conversions::Deg_to_Rad(attitude_.payload.roll);}
   inline float accel_x_mps2() {return attitude_.payload.accel_x;}
   inline float accel_y_mps2() {return attitude_.payload.accel_y;}
   inline float accel_z_mps2() {return attitude_.payload.accel_z;}
@@ -72,9 +72,9 @@ class Vn100 {
   inline float gyro_y_radps() {return attitude_.payload.gyro_y;}
   inline float gyro_z_radps() {return attitude_.payload.gyro_z;}
   Eigen::Vector3f gyro_radps();
-  inline float mag_x_ut() {return global::conversions::Gauss_to_uT(attitude_.payload.mag_x);}
-  inline float mag_y_ut() {return global::conversions::Gauss_to_uT(attitude_.payload.mag_y);}
-  inline float mag_z_ut() {return global::conversions::Gauss_to_uT(attitude_.payload.mag_z);}
+  inline float mag_x_ut() {return conversions::Gauss_to_uT(attitude_.payload.mag_x);}
+  inline float mag_y_ut() {return conversions::Gauss_to_uT(attitude_.payload.mag_y);}
+  inline float mag_z_ut() {return conversions::Gauss_to_uT(attitude_.payload.mag_z);}
   Eigen::Vector3f mag_ut();
   inline float uncomp_accel_x_mps2() {return imu_.payload.accel_x;}
   inline float uncomp_accel_y_mps2() {return imu_.payload.accel_y;}
@@ -84,9 +84,9 @@ class Vn100 {
   inline float uncomp_gyro_y_radps() {return imu_.payload.gyro_y;}
   inline float uncomp_gyro_z_radps() {return imu_.payload.gyro_z;}
   Eigen::Vector3f uncomp_gyro_radps();
-  inline float uncomp_mag_x_ut() {return global::conversions::Gauss_to_uT(imu_.payload.mag_x);}
-  inline float uncomp_mag_y_ut() {return global::conversions::Gauss_to_uT(imu_.payload.mag_y);}
-  inline float uncomp_mag_z_ut() {return global::conversions::Gauss_to_uT(imu_.payload.mag_z);}
+  inline float uncomp_mag_x_ut() {return conversions::Gauss_to_uT(imu_.payload.mag_x);}
+  inline float uncomp_mag_y_ut() {return conversions::Gauss_to_uT(imu_.payload.mag_y);}
+  inline float uncomp_mag_z_ut() {return conversions::Gauss_to_uT(imu_.payload.mag_z);}
   Eigen::Vector3f uncomp_mag_ut();
   inline float die_temperature_c() {return imu_.payload.temp;}
   inline float pressure_pa() {return imu_.payload.pressure * 1000.0f;}  // kPa to Pa
