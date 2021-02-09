@@ -165,11 +165,11 @@ bool status = vn.EnableDrdyInt(Vn100::AHRS, 7);
 
 **bool ApplyRotation(const Eigen::Matrix3f &c)** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
 
-```math
-x_{u} = c * x_{b}
+```
+Xu = c * Xb
 ```
 
-Where $`x_{u}`$ is the output, $`c`$ is the rotation matrix, and $`x_{b}`$ are the measurements in the sensor reference frame.
+Where *Xu* is the output, *c* is the rotation matrix, and *Xb* are the measurements in the sensor reference frame.
 
 ```C++
 /*
@@ -369,11 +369,11 @@ bool status = vn.EnableDrdyInt(Vn200::INS, 7);
 
 **bool ApplyRotation(const Eigen::Matrix3f &c)** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
 
-```math
-x_{u} = c * x_{b}
+```
+Xu = c * Xb
 ```
 
-Where $`x_{u}`$ is the output, $`c`$ is the rotation matrix, and $`x_{b}`$ are the measurements in the sensor reference frame.
+Where *Xu* is the output, *c* is the rotation matrix, and *Xb* are the measurements in the sensor reference frame.
 
 ```C++
 /*
@@ -666,11 +666,11 @@ bool status = vn.EnableDrdyInt(Vn300::INS, 7);
 
 **bool ApplyRotation(const Eigen::Matrix3f &c)** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
 
-```math
-x_{u} = c * x_{b}
+```
+Xu = c * Xb
 ```
 
-Where $`x_{u}`$ is the output, $`c`$ is the rotation matrix, and $`x_{b}`$ are the measurements in the sensor reference frame.
+Where *Xu* is the output, *c* is the rotation matrix, and *Xb* are the measurements in the sensor reference frame.
 
 ```C++
 /*
