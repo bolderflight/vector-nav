@@ -100,7 +100,7 @@ bool Vn300::SetAntennaOffset(const Eigen::Vector3f &b) {
 bool Vn300::GetAntennaOffset(Eigen::Vector3f *b) {
   if (!b) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
-    return false;    
+    return false;
   }
   error_code_ = vn_.ReadRegister(&antenna_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
@@ -110,7 +110,8 @@ bool Vn300::GetAntennaOffset(Eigen::Vector3f *b) {
   return true;
 }
 
-bool Vn300::SetCompassBaseline(const Eigen::Vector3f &pos, const Eigen::Vector3f &uncert) {
+bool Vn300::SetCompassBaseline(const Eigen::Vector3f &pos,
+                               const Eigen::Vector3f &uncert) {
   baseline_.payload.position_x = pos(0);
   baseline_.payload.position_y = pos(1);
   baseline_.payload.position_z = pos(2);
@@ -124,7 +125,7 @@ bool Vn300::SetCompassBaseline(const Eigen::Vector3f &pos, const Eigen::Vector3f
 bool Vn300::GetCompassBaseline(Eigen::Vector3f *pos, Eigen::Vector3f *uncert) {
   if ((!pos) || (!uncert)) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
-    return false;    
+    return false;
   }
   error_code_ = vn_.ReadRegister(&baseline_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
@@ -245,7 +246,7 @@ bool Vn300::GetPressureFilter(FilterMode *mode, uint16_t *window) {
 bool Vn300::DrdyCallback(const uint8_t int_pin, void (*function)()) {
   if (!function) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
-    return false;    
+    return false;
   }
   pinMode(int_pin, INPUT);
   attachInterrupt(int_pin, function, RISING);
@@ -271,7 +272,8 @@ bool Vn300::Read() {
   ins_imu_error_ = ins_status_buff_[0] & 0x10;
   ins_mag_press_error_ = ins_status_buff_[0] & 0x20;
   ins_gnss_error_ = ins_status_buff_[0] & 0x40;
-  ins_error_ = ins_time_error_ || ins_imu_error_ || ins_mag_press_error_ || ins_gnss_error_;
+  ins_error_ = ins_time_error_ || ins_imu_error_ ||
+               ins_mag_press_error_ || ins_gnss_error_;
   ins_gnss_heading_ = ins_status_buff_[1] & 0x01;
   ins_gnss_compass_ = ins_status_buff_[1] & 0x02;
   return true;

@@ -114,7 +114,7 @@ bool Vn200::SetAntennaOffset(const Eigen::Vector3f &b) {
 bool Vn200::GetAntennaOffset(Eigen::Vector3f *b) {
   if (!b) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
-    return false;    
+    return false;
   }
   error_code_ = vn_.ReadRegister(&antenna_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
@@ -258,7 +258,8 @@ bool Vn200::Read() {
   ins_imu_error_ = ins_status_buff_[0] & 0x10;
   ins_mag_press_error_ = ins_status_buff_[0] & 0x20;
   ins_gnss_error_ = ins_status_buff_[0] & 0x40;
-  ins_error_ = ins_time_error_ || ins_imu_error_ || ins_mag_press_error_ || ins_gnss_error_;
+  ins_error_ = ins_time_error_ || ins_imu_error_ ||
+               ins_mag_press_error_ || ins_gnss_error_;
   return true;
 }
 
