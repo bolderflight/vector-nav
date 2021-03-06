@@ -70,7 +70,8 @@ class Vn300 {
   bool GetRotation(Eigen::Matrix3f *c);
   bool SetAntennaOffset(const Eigen::Vector3f &b);
   bool GetAntennaOffset(Eigen::Vector3f *b);
-  bool SetCompassBaseline(const Eigen::Vector3f &pos, const Eigen::Vector3f &uncert);
+  bool SetCompassBaseline(const Eigen::Vector3f &pos,
+                          const Eigen::Vector3f &uncert);
   bool GetCompassBaseline(Eigen::Vector3f *pos, Eigen::Vector3f *uncert);
   bool SetMagFilter(const FilterMode mode, const uint16_t window);
   bool GetMagFilter(FilterMode *mode, uint16_t *window);
@@ -82,7 +83,7 @@ class Vn300 {
   bool GetTemperatureFilter(FilterMode *mode, uint16_t *window);
   bool SetPressureFilter(const FilterMode mode, const uint16_t window);
   bool GetPressureFilter(FilterMode *mode, uint16_t *window);
-  bool DrdyCallback(const uint8_t int_pin, void (*function)());//   bool Read();
+  bool DrdyCallback(const uint8_t int_pin, void (*function)());
   bool Read();
   inline VectorNav::ErrorCode error_code() {return error_code_;}
 
