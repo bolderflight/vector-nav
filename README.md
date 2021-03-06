@@ -35,10 +35,10 @@ These are known to work with the same packages used in Teensy products. Also swi
 The *spi_example* target creates an executable for communicating with the sensor using SPI communication. The target also has a *_hex* for creating the hex file to upload to the microcontroller. 
 
 ## Namespace
-This library is within the namespace *sensors*.
+This library is within the namespace *bfs*.
 
 ## Registers
-*registers.h*, within the namespace *vector_nav* defines all of the VectorNav configuration and data registers. Registers that are common across VectorNav's product line are within the namespace *common*, registers for the VN-100 are within the namespace *vn100*, registers for the VN-200 are within the namespace *vn200*, and registers for the VN-300 are within the namespace *vn300*. Each register is defined as a struct, whose name matches the register name within the VectorNav User Manuals. The structs define the register ID, the register size, whether it is read only, and the register payload. The payload contains the register fields that are written to or read from.
+*registers.h* defines all of the VectorNav configuration and data registers. Each register is defined as a struct, whose name matches the register name within the VectorNav User Manuals. The structs define the register ID, the register size, whether it is read only, and the register payload. The payload contains the register fields that are written to or read from.
 
 The concept is the *VectorNav* class initializes communication with the sensor and provides methods for writing and reading these register structs to/from the sensor. The *VectorNav* class, including structs defined in *registers.h*, enables using any of the sensor's available functionality. The *Vn100*, *Vn200*, and *Vn300* classes wrap around the *VectorNav* class to provide convenience methods for the most common configuration and data collection functions. Whereas these classes provide limited functionality, they provide a more intuitive interface for the majority of use cases.
 
@@ -56,7 +56,7 @@ This class enables initializing communication with the VectorNav and writing and
 **VectorNav(SPIClass &ast;bus, uint8_t cs)** Constructs a *VectorNav* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
-sensors::VectorNav vn(&SPI, 2);
+bfs::VectorNav vn(&SPI, 2);
 ```
 
 **ErrorCode<a name="error_code"></a>** Most *VectorNav* methods return an error code indicating success or failure of the operation. Below is a table of the error code values:
@@ -88,7 +88,7 @@ vn.Init();
 **ErrorCode ReadRegister(REG &ast;ptr)** Reads a register given a pointer to the register struct. Returns an *ErrorCode* indicating success or failure of the operation.
 
 ```C++
-sensors::vector_nav::common::SerialNumber sn;
+VnSerialNumber sn;
 ErrorCode err = vn.ReadRegister(&sn);
 if (err == ERROR_SUCCESS) {
   Serial.println(sn.payload.serial_num);
@@ -98,7 +98,7 @@ if (err == ERROR_SUCCESS) {
 **ErrorCode WriteRegister(const REG &ref)** Writes a register given a reference to the register struct. Returns an *ErrorCode* indicating success or failure of the operation.
 
 ```C++
-sensors::vector_nav::vn200::GnssAntennaOffset ant;
+VnGnssAntennaOffset ant;
 ant.payload.position_x = 2;
 ant.payload.position_y = 0;
 ant.payload.position_z = 0;
@@ -129,7 +129,7 @@ This class wraps around the *VectorNav* class to provide convenience methods for
 **Vn100(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn100* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
-sensors::Vn100 vn(&SPI, 2);
+bfs::Vn100 vn(&SPI, 2);
 ```
 
 **VectorNav::ErrorCode error_code()** Most methods within the *Vn100* class return a boolean indicating success or failure of the operation. The [error code](#error_code) from the last operation is returned by this method, which can be useful in debugging if an operation fails.
@@ -321,7 +321,7 @@ This class wraps around the *VectorNav* class to provide convenience methods for
 **Vn200(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn200* object given a pointer to the SPI bus object that is is communicating over and the chip select pin number.
 
 ```C++
-sensors::Vn200 vn(&SPI, 2);
+bfs::Vn200 vn(&SPI, 2);
 ```
 
 **VectorNav::ErrorCode error_code()** Most methods within the *Vn200* class return a boolean indicating success or failure of the operation. The [error code](#error_code) from the last operation is returned by this method, which can be useful in debugging if an operation fails.
@@ -445,9 +445,9 @@ The filter is tuned by setting a window length for the first order FIR, boxcar f
 
 **bool DrdyCallback(const uint8_t int_pin, void (&ast;function)())** Enables setting a callback function to be executed on the data ready interrupt, given the pin number of the microcontroller connected to the data ready interrupt pin.
 
-**bool SendExternalGnssData(const vector_nav::vn200::GnssSolutionLla &ref)** Sends external GNSS data to the VN-200 given a reference to the LLA solution register. The VN-200 must first be configured to use an external GNSS receiver using the *EnableExternalGnss* method.
+**bool SendExternalGnssData(const VnGnssSolutionLla &ref)** Sends external GNSS data to the VN-200 given a reference to the LLA solution register. The VN-200 must first be configured to use an external GNSS receiver using the *EnableExternalGnss* method.
 
-**bool SendExternalGnssData(const vector_nav::vn200::GnssSolutionEcef &ref)** Sends external GNSS data to the VN-200 given a reference to the ECEF solution register. The VN-200 must first be configured to use an external GNSS receiver using the *EnableExternalGnss* method.
+**bool SendExternalGnssData(const VnGnssSolutionEcef &ref)** Sends external GNSS data to the VN-200 given a reference to the ECEF solution register. The VN-200 must first be configured to use an external GNSS receiver using the *EnableExternalGnss* method.
 
 **bool Read()** Retrieves the current data from the VN-200 sensor and, on success, stores the updated values in the *Vn200* object.
 
@@ -629,7 +629,7 @@ This class wraps around the *VectorNav* class to provide convenience methods for
 **Vn300(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn300* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
-sensors::Vn300 vn(&SPI, 2);
+bfs::Vn300 vn(&SPI, 2);
 ```
 
 **VectorNav::ErrorCode error_code()** Most methods within the *Vn300* class return a boolean indicating success or failure of the operation. The [error code](#error_code) from the last operation is returned by this method, which can be useful in debugging if an operation fails.
