@@ -2,7 +2,25 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems Inc
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the “Software”), to
+* deal in the Software without restriction, including without limitation the
+* rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+* sell copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+* IN THE SOFTWARE.
 */
 
 #ifndef INCLUDE_VECTOR_NAV_VN_H_
@@ -10,7 +28,7 @@
 
 #include "core/core.h"
 
-namespace sensors {
+namespace bfs {
 
 class VectorNav {
  public:
@@ -36,12 +54,13 @@ class VectorNav {
   void Init() {
     pinMode(cs_, OUTPUT);
     digitalWriteFast(cs_, HIGH);
-    bus_->begin(); 
+    bus_->begin();
   }
   /* Read register */
   template<class REG>
   ErrorCode ReadRegister(REG *ptr) {
-    static_assert(ptr->size == sizeof(ptr->payload), "VectorNav register payload size incorrect");
+    static_assert(ptr->size == sizeof(ptr->payload),
+                  "VectorNav register payload size incorrect");
     /* Delay if necessary */
     if (time_since_comm_us_ < WAIT_TIME_US_) {
       delayMicroseconds(WAIT_TIME_US_ - time_since_comm_us_);
@@ -81,8 +100,10 @@ class VectorNav {
   /* Write register */
   template<class REG>
   ErrorCode WriteRegister(const REG &ref) {
-    static_assert(ref.size == sizeof(ref.payload), "VectorNav register payload size incorrect");
-    static_assert(ref.read_only == false, "VectorNav read-only register");
+    static_assert(ref.size == sizeof(ref.payload),
+                  "VectorNav register payload size incorrect");
+    static_assert(ref.read_only == false,
+                  "VectorNav read-only register");
     /* Delay if necessary */
     if (time_since_comm_us_ < WAIT_TIME_US_) {
       delayMicroseconds(WAIT_TIME_US_ - time_since_comm_us_);
@@ -97,7 +118,7 @@ class VectorNav {
     for (std::size_t i = 0; i < sizeof(ref.payload); i++) {
       bus_->transfer(reinterpret_cast<const uint8_t *>(&ref.payload)[i]);
     }
-    digitalWriteFast(cs_, HIGH);  
+    digitalWriteFast(cs_, HIGH);
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
@@ -168,7 +189,7 @@ class VectorNav {
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
-    digitalWriteFast(cs_, HIGH);  
+    digitalWriteFast(cs_, HIGH);
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
@@ -194,7 +215,7 @@ class VectorNav {
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
-    digitalWriteFast(cs_, HIGH);  
+    digitalWriteFast(cs_, HIGH);
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     /* Wait for operation to complete */
@@ -212,7 +233,7 @@ class VectorNav {
     bus_->transfer(present);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
-    digitalWriteFast(cs_, HIGH);  
+    digitalWriteFast(cs_, HIGH);
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
@@ -238,7 +259,7 @@ class VectorNav {
     bus_->transfer(present);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
-    digitalWriteFast(cs_, HIGH);  
+    digitalWriteFast(cs_, HIGH);
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
@@ -265,7 +286,7 @@ class VectorNav {
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
-    digitalWriteFast(cs_, HIGH);  
+    digitalWriteFast(cs_, HIGH);
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
@@ -292,7 +313,7 @@ class VectorNav {
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
-    digitalWriteFast(cs_, HIGH);  
+    digitalWriteFast(cs_, HIGH);
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
@@ -329,6 +350,6 @@ class VectorNav {
   static constexpr uint8_t CMD_SET_FILTER_BIAS_ = 0x11;
 };
 
-}  // namespace sensors
+}  // namespace bfs
 
 #endif  // INCLUDE_VECTOR_NAV_VN_H_

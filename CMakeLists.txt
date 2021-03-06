@@ -5,7 +5,7 @@ if (DEFINED MCU)
 endif()
 # Project information
 project(VectorNav
-	VERSION 1.0.2
+	VERSION 2.0.0
 	DESCRIPTION "VectorNav driver"
 	LANGUAGES CXX
 )
@@ -32,7 +32,7 @@ if (DEFINED MCU)
 	FetchContent_Declare(
 		units
 		GIT_REPOSITORY 	https://github.com/bolderflight/units.git
-		GIT_TAG v2.0.0
+		GIT_TAG v3.1.0
 	)
 	FetchContent_MakeAvailable(units)
 	# Add the library target

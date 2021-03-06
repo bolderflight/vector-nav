@@ -6,14 +6,14 @@ Lint:
   tags:
     - bfs
   script: 
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/registers.h
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vector_nav.h
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vn.h
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vn100.h
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vn200.h
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length include/vector_nav/vn300.h
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length src/vector_nav/vn100.cc
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length src/vector_nav/vn200.cc
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length src/vector_nav/vn300.cc
+    - cpplint --verbose=0 include/vector_nav/registers.h
+    - cpplint --verbose=0 include/vector_nav/vector_nav.h
+    - cpplint --verbose=0 include/vector_nav/vn.h
+    - cpplint --verbose=0 include/vector_nav/vn100.h
+    - cpplint --verbose=0 include/vector_nav/vn200.h
+    - cpplint --verbose=0 include/vector_nav/vn300.h
+    - cpplint --verbose=0 src/vector_nav/vn100.cc
+    - cpplint --verbose=0 src/vector_nav/vn200.cc
+    - cpplint --verbose=0 src/vector_nav/vn300.cc
 
   

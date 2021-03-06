@@ -2,7 +2,25 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2020 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems Inc
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the “Software”), to
+* deal in the Software without restriction, including without limitation the
+* rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+* sell copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+* IN THE SOFTWARE.
 */
 
 #ifndef INCLUDE_VECTOR_NAV_REGISTERS_H_
@@ -10,19 +28,17 @@
 
 #include <cstdint>
 
+namespace bfs {
+
 /*
 * Defines all the available VectorNav registers with their id and data.
 * Namespaces are used to separate common registers from unit
 * specific registers (i.e. registers only available on VN-300).
 */
 
-namespace sensors {
-namespace vector_nav {
-
 /* Registers common accross VectorNav products */
-namespace common {
 
-struct UserTag {
+struct VnUserTag {
   static const uint8_t id = 0;
   static const uint8_t size = 20;
   static const bool read_only = false;
@@ -31,7 +47,7 @@ struct UserTag {
   } payload;
 };
 
-struct ModelNumber {
+struct VnModelNumber {
   static const uint8_t id = 1;
   static const uint8_t size = 24;
   static const bool read_only = true;
@@ -40,7 +56,7 @@ struct ModelNumber {
   } payload;
 };
 
-struct HardwareRevision {
+struct VnHardwareRevision {
   static const uint8_t id = 2;
   static const uint8_t size = 4;
   static const bool read_only = true;
@@ -49,7 +65,7 @@ struct HardwareRevision {
   } payload;
 };
 
-struct SerialNumber {
+struct VnSerialNumber {
   static const uint8_t id = 3;
   static const uint8_t size = 4;
   static const bool read_only = true;
@@ -58,7 +74,7 @@ struct SerialNumber {
   } payload;
 };
 
-struct FirmwareVersion {
+struct VnFirmwareVersion {
   static const uint8_t id = 4;
   static const uint8_t size = 4;
   static const bool read_only = true;
@@ -70,7 +86,7 @@ struct FirmwareVersion {
   } payload;
 };
 
-struct SynchronizationControl {
+struct VnSynchronizationControl {
   static const uint8_t id = 32;
   static const uint8_t size = 20;
   static const bool read_only = false;
@@ -87,7 +103,7 @@ struct SynchronizationControl {
   } payload;
 };
 
-struct SynchronizationStatus {
+struct VnSynchronizationStatus {
   static const uint8_t id = 33;
   static const uint8_t size = 12;
   static const bool read_only = false;
@@ -98,7 +114,7 @@ struct SynchronizationStatus {
   } payload;
 };
 
-struct ImuMeasurements {
+struct VnImuMeasurements {
   static const uint8_t id = 54;
   static const uint8_t size = 44;
   static const bool read_only = true;
@@ -117,7 +133,7 @@ struct ImuMeasurements {
   } payload;
 };
 
-struct DeltaThetaDeltaVelocity {
+struct VnDeltaThetaDeltaVelocity {
   static const uint8_t id = 80;
   static const uint8_t size = 28;
   static const bool read_only = true;
@@ -132,7 +148,7 @@ struct DeltaThetaDeltaVelocity {
   } payload;
 };
 
-struct MagnetometerCompensation {
+struct VnMagnetometerCompensation {
   static const uint8_t id = 23;
   static const uint8_t size = 48;
   static const bool read_only = false;
@@ -142,7 +158,7 @@ struct MagnetometerCompensation {
   } payload;
 };
 
-struct AccelerationCompensation {
+struct VnAccelerationCompensation {
   static const uint8_t id = 25;
   static const uint8_t size = 48;
   static const bool read_only = false;
@@ -152,7 +168,7 @@ struct AccelerationCompensation {
   } payload;
 };
 
-struct GyroCompensation {
+struct VnGyroCompensation {
   static const uint8_t id = 84;
   static const uint8_t size = 48;
   static const bool read_only = false;
@@ -162,7 +178,7 @@ struct GyroCompensation {
   } payload;
 };
 
-struct ReferenceFrameRotation {
+struct VnReferenceFrameRotation {
   static const uint8_t id = 26;
   static const uint8_t size = 36;
   static const bool read_only = false;
@@ -171,7 +187,7 @@ struct ReferenceFrameRotation {
   } payload;
 };
 
-struct ImuFilteringConfiguration {
+struct VnImuFilteringConfiguration {
   static const uint8_t id = 85;
   static const uint8_t size = 16;  // tested to work with 16
   static const bool read_only = false;
@@ -190,7 +206,7 @@ struct ImuFilteringConfiguration {
   } payload;
 };
 
-struct DeltaThetaDeltaVelocityConfiguration {
+struct VnDeltaThetaDeltaVelocityConfiguration {
   static const uint8_t id = 82;
   static const uint8_t size = 6;
   static const bool read_only = false;
@@ -203,7 +219,7 @@ struct DeltaThetaDeltaVelocityConfiguration {
   } payload;
 };
 
-struct YawPitchRoll {
+struct VnYawPitchRoll {
   static const uint8_t id = 8;
   static const uint8_t size = 12;
   static const bool read_only = true;
@@ -214,7 +230,7 @@ struct YawPitchRoll {
   } payload;
 };
 
-struct AttitudeQuaternion {
+struct VnAttitudeQuaternion {
   static const uint8_t id = 9;
   static const uint8_t size = 16;
   static const bool read_only = true;
@@ -223,7 +239,7 @@ struct AttitudeQuaternion {
   } payload;
 };
 
-struct YawPitchRollMagneticAccelerationAngularRates {
+struct VnYawPitchRollMagneticAccelerationAngularRates {
   static const uint8_t id = 27;
   static const uint8_t size = 48;
   static const bool read_only = true;
@@ -243,7 +259,7 @@ struct YawPitchRollMagneticAccelerationAngularRates {
   } payload;
 };
 
-struct QuaternionMagneticAccelerationAngularRates {
+struct VnQuaternionMagneticAccelerationAngularRates {
   static const uint8_t id = 15;
   static const uint8_t size = 52;
   static const bool read_only = true;
@@ -261,7 +277,7 @@ struct QuaternionMagneticAccelerationAngularRates {
   } payload;
 };
 
-struct MagneticMeasurements {
+struct VnMagneticMeasurements {
   static const uint8_t id = 17;
   static const uint8_t size = 12;
   static const bool read_only = true;
@@ -272,7 +288,7 @@ struct MagneticMeasurements {
   } payload;
 };
 
-struct AccelerationMeasurements {
+struct VnAccelerationMeasurements {
   static const uint8_t id = 18;
   static const uint8_t size = 12;
   static const bool read_only = true;
@@ -283,7 +299,7 @@ struct AccelerationMeasurements {
   } payload;
 };
 
-struct AngularRateMeasurements {
+struct VnAngularRateMeasurements {
   static const uint8_t id = 19;
   static const uint8_t size = 12;
   static const bool read_only = true;
@@ -294,7 +310,7 @@ struct AngularRateMeasurements {
   } payload;
 };
 
-struct MagneticAccelerationAngularRates {
+struct VnMagneticAccelerationAngularRates {
   static const uint8_t id = 20;
   static const uint8_t size = 36;
   static const bool read_only = true;
@@ -311,7 +327,7 @@ struct MagneticAccelerationAngularRates {
   } payload;
 };
 
-struct YawPitchRollTrueBodyAccelerationAngularRates {
+struct VnYawPitchRollTrueBodyAccelerationAngularRates {
   static const uint8_t id = 239;
   static const uint8_t size = 36;
   static const bool read_only = true;
@@ -328,7 +344,7 @@ struct YawPitchRollTrueBodyAccelerationAngularRates {
   } payload;
 };
 
-struct YawPitchRollTrueInertialAccelerationAngularRates {
+struct VnYawPitchRollTrueInertialAccelerationAngularRates {
   static const uint8_t id = 240;
   static const uint8_t size = 36;
   static const bool read_only = true;
@@ -345,7 +361,7 @@ struct YawPitchRollTrueInertialAccelerationAngularRates {
   } payload;
 };
 
-struct Heave {
+struct VnHeave {
   static const uint8_t id = 115;
   static const uint8_t size = 12;
   static const bool read_only = true;
@@ -356,7 +372,7 @@ struct Heave {
   } payload;
 };
 
-struct HeaveConfiguration {
+struct VnHeaveConfiguration {
   static const uint8_t id = 116;
   static const uint8_t size = 28;
   static const bool read_only = false;
@@ -371,7 +387,7 @@ struct HeaveConfiguration {
   } payload;
 };
 
-struct VpeBasicControl {
+struct VnVpeBasicControl {
   static const uint8_t id = 35;
   static const uint8_t size = 4;
   static const bool read_only = false;
@@ -383,7 +399,7 @@ struct VpeBasicControl {
   } payload;
 };
 
-struct MagnetometerCalibrationControl {
+struct VnMagnetometerCalibrationControl {
   static const uint8_t id = 44;
   static const uint8_t size = 4;
   static const bool read_only = false;
@@ -394,7 +410,7 @@ struct MagnetometerCalibrationControl {
   } payload;
 };
 
-struct CalculatedMagnetometerCalibration {
+struct VnCalculatedMagnetometerCalibration {
   static const uint8_t id = 47;
   static const uint8_t size = 48;
   static const bool read_only = true;
@@ -404,7 +420,7 @@ struct CalculatedMagnetometerCalibration {
   } payload;
 };
 
-struct MagneticGravityReferenceVectors {
+struct VnMagneticGravityReferenceVectors {
   static const uint8_t id = 21;
   static const uint8_t size = 24;
   static const bool read_only = false;
@@ -418,9 +434,10 @@ struct MagneticGravityReferenceVectors {
   } payload;
 };
 
-struct ReferenceVectorConfiguration {
+struct VnReferenceVectorConfiguration {
   static const uint8_t id = 83;
-  static const uint8_t size = 40;  // differs from manual, but confirmed 40 bytes with VN support
+  /* differs from manual, but confirmed 40 bytes with VN support */
+  static const uint8_t size = 40;
   static const bool read_only = false;
   struct {
     uint8_t use_mag_model;
@@ -436,12 +453,9 @@ struct ReferenceVectorConfiguration {
   } payload;
 };
 
-}  // namespace common
-
 /* VN-100 specific registers */
-namespace vn100 {
 
-struct VpeMagnetometerBasicTuning {
+struct VnVpeMagnetometerBasicTuning {
   static const uint8_t id = 36;
   static const uint8_t size = 36;
   static const bool read_only = false;
@@ -458,7 +472,7 @@ struct VpeMagnetometerBasicTuning {
   } payload;
 };
 
-struct VpeAccelerometerBasicTuning {
+struct VnVpeAccelerometerBasicTuning {
   static const uint8_t id = 38;
   static const uint8_t size = 36;
   static const bool read_only = false;
@@ -475,7 +489,7 @@ struct VpeAccelerometerBasicTuning {
   } payload;
 };
 
-struct FilterStartupGyroBias {
+struct VnFilterStartupGyroBias {
   static const uint8_t id = 43;
   static const uint8_t size = 12;
   static const bool read_only = false;
@@ -486,7 +500,7 @@ struct FilterStartupGyroBias {
   } payload;
 };
 
-struct VpeGyroBasicTuning {
+struct VnVpeGyroBasicTuning {
   static const uint8_t id = 40;
   static const uint8_t size = 36;
   static const bool read_only = false;
@@ -503,7 +517,7 @@ struct VpeGyroBasicTuning {
   } payload;
 };
 
-struct VelocityCompensationControl {
+struct VnVelocityCompensationControl {
   static const uint8_t id = 51;
   static const uint8_t size = 12;
   static const bool read_only = false;
@@ -514,7 +528,7 @@ struct VelocityCompensationControl {
   } payload;
 };
 
-struct VelocityCompensationMeasurement {
+struct VnVelocityCompensationMeasurement {
   static const uint8_t id = 50;
   static const uint8_t size = 12;
   static const bool read_only = false;
@@ -525,12 +539,9 @@ struct VelocityCompensationMeasurement {
   } payload;
 };
 
-}  // namespace vn100
-
 /* VN-200 specific registers */
-namespace vn200 {
 
-struct GnssSolutionLla {
+struct VnGnssSolutionLla {
   static const uint8_t id = 58;
   static const uint8_t size = 72;
   static const bool read_only = false;
@@ -554,7 +565,7 @@ struct GnssSolutionLla {
   } payload;
 };
 
-struct GnssSolutionEcef {
+struct VnGnssSolutionEcef {
   static const uint8_t id = 59;
   static const uint8_t size = 72;
   static const bool read_only = false;
@@ -578,7 +589,7 @@ struct GnssSolutionEcef {
   } payload;
 };
 
-struct GnssConfiguration {
+struct VnGnssConfiguration {
   static const uint8_t id = 55;
   static const uint8_t size = 5;
   static const bool read_only = false;
@@ -591,7 +602,7 @@ struct GnssConfiguration {
   } payload;
 };
 
-struct GnssAntennaOffset {
+struct VnGnssAntennaOffset {
   static const uint8_t id = 57;
   static const uint8_t size = 12;
   static const bool read_only = false;
@@ -602,7 +613,7 @@ struct GnssAntennaOffset {
   } payload;
 };
 
-struct InsSolutionLla {
+struct VnInsSolutionLla {
   static const uint8_t id = 63;
   static const uint8_t size = 72;
   static const bool read_only = true;
@@ -625,7 +636,7 @@ struct InsSolutionLla {
   } payload;
 };
 
-struct InsSolutionEcef {
+struct VnInsSolutionEcef {
   static const uint8_t id = 64;
   static const uint8_t size = 72;
   static const bool read_only = true;
@@ -648,7 +659,7 @@ struct InsSolutionEcef {
   } payload;
 };
 
-struct InsStateLla {
+struct VnInsStateLla {
   static const uint8_t id = 72;
   static const uint8_t size = 80;
   static const bool read_only = true;
@@ -672,7 +683,7 @@ struct InsStateLla {
   } payload;
 };
 
-struct InsStateEcef {
+struct VnInsStateEcef {
   static const uint8_t id = 73;
   static const uint8_t size = 80;
   static const bool read_only = true;
@@ -696,19 +707,7 @@ struct InsStateEcef {
   } payload;
 };
 
-struct InsBasicConfiguration {
-  static const uint8_t id = 67;
-  static const uint8_t size = 4;
-  static const bool read_only = false;
-  struct {
-    uint8_t scenario;
-    uint8_t ahrs_aiding;
-    uint8_t resv1 = 0;
-    uint8_t resv2 = 0;
-  } payload;
-};
-
-struct StartupFilterBiasEstimate {
+struct VnStartupFilterBiasEstimate {
   static const uint8_t id = 74;
   static const uint8_t size = 28;
   static const bool read_only = false;
@@ -723,12 +722,9 @@ struct StartupFilterBiasEstimate {
   } payload;
 };
 
-}  // namespace vn200
-
 /* VN-300 specific registers */
-namespace vn300 {
 
-struct GpsCompassBaseline {
+struct VnGpsCompassBaseline {
   static const uint8_t id = 93;
   static const uint8_t size = 24;
   static const bool read_only = false;
@@ -742,7 +738,7 @@ struct GpsCompassBaseline {
   } payload;
 };
 
-struct GpsCompassEstimatedBaseline {
+struct VnGpsCompassEstimatedBaseline {
   static const uint8_t id = 97;
   static const uint8_t size = 28;
   static const bool read_only = true;
@@ -759,7 +755,7 @@ struct GpsCompassEstimatedBaseline {
   } payload;
 };
 
-struct InsBasicConfiguration {
+struct VnInsBasicConfiguration {
   static const uint8_t id = 67;
   static const uint8_t size = 4;
   static const bool read_only = false;
@@ -771,9 +767,6 @@ struct InsBasicConfiguration {
   } payload;
 };
 
-}  // namespace vn300
-
-}  // namespace vector_nav
-}  // namespace sensors
+}  // namespace bfs
 
 #endif  // INCLUDE_VECTOR_NAV_REGISTERS_H_

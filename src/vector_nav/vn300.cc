@@ -2,7 +2,25 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems Inc
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the “Software”), to
+* deal in the Software without restriction, including without limitation the
+* rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+* sell copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+* IN THE SOFTWARE.
 */
 
 #include "vector_nav/vn300.h"
@@ -13,16 +31,16 @@
 #include "vector_nav/registers.h"
 #include "units/units.h"
 
-namespace sensors {
+namespace bfs {
 
 bool Vn300::Begin() {
-  vector_nav_.Init();
-  error_code_ = vector_nav_.ReadRegister(&serial_num_);
+  vn_.Init();
+  error_code_ = vn_.ReadRegister(&serial_num_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
 bool Vn300::EnableDrdyInt(const DrdyMode mode, const uint16_t srd) {
-  error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
+  error_code_ = vn_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   enum SyncOutPolarity : uint8_t {
     NEG_PULSE = 0,
@@ -32,15 +50,15 @@ bool Vn300::EnableDrdyInt(const DrdyMode mode, const uint16_t srd) {
   sync_cntrl_.payload.sync_out_polarity = POS_PULSE;
   sync_cntrl_.payload.sync_out_pulse_width = 500000;
   sync_cntrl_.payload.sync_out_skip_factor = srd;
-  error_code_ = vector_nav_.WriteRegister(sync_cntrl_);
+  error_code_ = vn_.WriteRegister(sync_cntrl_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
 bool Vn300::DisableDrdyInt() {
-  error_code_ = vector_nav_.ReadRegister(&sync_cntrl_);
+  error_code_ = vn_.ReadRegister(&sync_cntrl_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   sync_cntrl_.payload.sync_out_mode = 0;
-  error_code_ = vector_nav_.WriteRegister(sync_cntrl_);
+  error_code_ = vn_.WriteRegister(sync_cntrl_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -50,9 +68,9 @@ bool Vn300::ApplyRotation(const Eigen::Matrix3f &c) {
       rotation_.payload.c[m][n] = c(m, n);
     }
   }
-  error_code_ = vector_nav_.WriteRegister(rotation_);
-  vector_nav_.WriteSettings();
-  vector_nav_.Reset();
+  error_code_ = vn_.WriteRegister(rotation_);
+  vn_.WriteSettings();
+  vn_.Reset();
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -61,7 +79,7 @@ bool Vn300::GetRotation(Eigen::Matrix3f *c) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;
   }
-  error_code_ = vector_nav_.ReadRegister(&rotation_);
+  error_code_ = vn_.ReadRegister(&rotation_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   for (std::size_t m = 0; m < 3; m++) {
     for (std::size_t n = 0; n < 3; n++) {
@@ -75,7 +93,7 @@ bool Vn300::SetAntennaOffset(const Eigen::Vector3f &b) {
   antenna_.payload.position_x = b(0);
   antenna_.payload.position_y = b(1);
   antenna_.payload.position_z = b(2);
-  error_code_ = vector_nav_.WriteRegister(antenna_);
+  error_code_ = vn_.WriteRegister(antenna_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -84,7 +102,7 @@ bool Vn300::GetAntennaOffset(Eigen::Vector3f *b) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;    
   }
-  error_code_ = vector_nav_.ReadRegister(&antenna_);
+  error_code_ = vn_.ReadRegister(&antenna_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   (*b)(0) = antenna_.payload.position_x;
   (*b)(1) = antenna_.payload.position_y;
@@ -99,7 +117,7 @@ bool Vn300::SetCompassBaseline(const Eigen::Vector3f &pos, const Eigen::Vector3f
   baseline_.payload.uncertainty_x = uncert(0);
   baseline_.payload.uncertainty_y = uncert(1);
   baseline_.payload.uncertainty_z = uncert(2);
-  error_code_ = vector_nav_.WriteRegister(baseline_);
+  error_code_ = vn_.WriteRegister(baseline_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -108,7 +126,7 @@ bool Vn300::GetCompassBaseline(Eigen::Vector3f *pos, Eigen::Vector3f *uncert) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;    
   }
-  error_code_ = vector_nav_.ReadRegister(&baseline_);
+  error_code_ = vn_.ReadRegister(&baseline_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   (*pos)(0) = baseline_.payload.position_x;
   (*pos)(1) = baseline_.payload.position_y;
@@ -120,11 +138,11 @@ bool Vn300::GetCompassBaseline(Eigen::Vector3f *pos, Eigen::Vector3f *uncert) {
 }
 
 bool Vn300::SetMagFilter(const FilterMode mode, const uint16_t window) {
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.mag_filter_mode = static_cast<uint8_t>(mode);
   filter_.payload.mag_window_size = window;
-  error_code_ = vector_nav_.WriteRegister(filter_);
+  error_code_ = vn_.WriteRegister(filter_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -133,7 +151,7 @@ bool Vn300::GetMagFilter(FilterMode *mode, uint16_t *window) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;
   }
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   *mode = static_cast<FilterMode>(filter_.payload.mag_filter_mode);
   *window = filter_.payload.mag_window_size;
@@ -141,11 +159,11 @@ bool Vn300::GetMagFilter(FilterMode *mode, uint16_t *window) {
 }
 
 bool Vn300::SetAccelFilter(const FilterMode mode, const uint16_t window) {
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.accel_filter_mode = static_cast<uint8_t>(mode);
   filter_.payload.accel_window_size = window;
-  error_code_ = vector_nav_.WriteRegister(filter_);
+  error_code_ = vn_.WriteRegister(filter_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -154,7 +172,7 @@ bool Vn300::GetAccelFilter(FilterMode *mode, uint16_t *window) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;
   }
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   *mode = static_cast<FilterMode>(filter_.payload.accel_filter_mode);
   *window = filter_.payload.accel_window_size;
@@ -162,11 +180,11 @@ bool Vn300::GetAccelFilter(FilterMode *mode, uint16_t *window) {
 }
 
 bool Vn300::SetGyroFilter(const FilterMode mode, const uint16_t window) {
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.gyro_filter_mode = static_cast<uint8_t>(mode);
   filter_.payload.gyro_window_size = window;
-  error_code_ = vector_nav_.WriteRegister(filter_);
+  error_code_ = vn_.WriteRegister(filter_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -175,7 +193,7 @@ bool Vn300::GetGyroFilter(FilterMode *mode, uint16_t *window) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;
   }
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   *mode = static_cast<FilterMode>(filter_.payload.gyro_filter_mode);
   *window = filter_.payload.gyro_window_size;
@@ -183,11 +201,11 @@ bool Vn300::GetGyroFilter(FilterMode *mode, uint16_t *window) {
 }
 
 bool Vn300::SetTemperatureFilter(const FilterMode mode, const uint16_t window) {
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.temp_filter_mode = static_cast<uint8_t>(mode);
   filter_.payload.temp_window_size = window;
-  error_code_ = vector_nav_.WriteRegister(filter_);
+  error_code_ = vn_.WriteRegister(filter_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -196,7 +214,7 @@ bool Vn300::GetTemperatureFilter(FilterMode *mode, uint16_t *window) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;
   }
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   *mode = static_cast<FilterMode>(filter_.payload.temp_filter_mode);
   *window = filter_.payload.temp_window_size;
@@ -204,11 +222,11 @@ bool Vn300::GetTemperatureFilter(FilterMode *mode, uint16_t *window) {
 }
 
 bool Vn300::SetPressureFilter(const FilterMode mode, const uint16_t window) {
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   filter_.payload.pres_filter_mode = static_cast<uint8_t>(mode);
   filter_.payload.pres_window_size = window;
-  error_code_ = vector_nav_.WriteRegister(filter_);
+  error_code_ = vn_.WriteRegister(filter_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
 }
 
@@ -217,7 +235,7 @@ bool Vn300::GetPressureFilter(FilterMode *mode, uint16_t *window) {
     error_code_ = VectorNav::ERROR_NULL_PTR;
     return false;
   }
-  error_code_ = vector_nav_.ReadRegister(&filter_);
+  error_code_ = vn_.ReadRegister(&filter_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   *mode = static_cast<FilterMode>(filter_.payload.pres_filter_mode);
   *window = filter_.payload.pres_window_size;
@@ -236,13 +254,13 @@ bool Vn300::DrdyCallback(const uint8_t int_pin, void (*function)()) {
 }
 
 bool Vn300::Read() {
-  error_code_ = vector_nav_.ReadRegister(&ins_);
+  error_code_ = vn_.ReadRegister(&ins_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  error_code_ = vector_nav_.ReadRegister(&gnss_);
+  error_code_ = vn_.ReadRegister(&gnss_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  error_code_ = vector_nav_.ReadRegister(&comp_imu_);
+  error_code_ = vn_.ReadRegister(&comp_imu_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  error_code_ = vector_nav_.ReadRegister(&uncomp_imu_);
+  error_code_ = vn_.ReadRegister(&uncomp_imu_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
   /* INS status parsing */
   ins_status_buff_[0] = ins_.payload.status & 0xFF;
@@ -259,84 +277,4 @@ bool Vn300::Read() {
   return true;
 }
 
-Eigen::Vector3d Vn300::ins_lla_rad_m() {
-  Eigen::Vector3d lla;
-  lla(0) = conversions::Deg_to_Rad(ins_.payload.latitude);
-  lla(1) = conversions::Deg_to_Rad(ins_.payload.longitude);
-  lla(2) = ins_.payload.altitude;
-  return lla;
-}
-
-Eigen::Vector3f Vn300::ins_ned_vel_mps() {
-  Eigen::Vector3f ned_vel;
-  ned_vel(0) = ins_.payload.ned_vel_x;
-  ned_vel(1) = ins_.payload.ned_vel_y;
-  ned_vel(2) = ins_.payload.ned_vel_z;
-  return ned_vel;
-}
-
-Eigen::Vector3d Vn300::gnss_lla_rad_m() {
-  Eigen::Vector3d lla;
-  lla(0) = conversions::Deg_to_Rad(gnss_.payload.latitude);
-  lla(1) = conversions::Deg_to_Rad(gnss_.payload.longitude);
-  lla(2) = gnss_.payload.altitude;
-  return lla;
-}
-
-Eigen::Vector3f Vn300::gnss_ned_vel_mps() {
-  Eigen::Vector3f ned_vel;
-  ned_vel(0) = gnss_.payload.ned_vel_x;
-  ned_vel(1) = gnss_.payload.ned_vel_y;
-  ned_vel(2) = gnss_.payload.ned_vel_z;
-  return ned_vel;
-}
-
-Eigen::Vector3f Vn300::accel_mps2() {
-  Eigen::Vector3f accel;
-  accel(0) = comp_imu_.payload.accel_x;
-  accel(1) = comp_imu_.payload.accel_y;
-  accel(2) = comp_imu_.payload.accel_z;
-  return accel;
-}
-
-Eigen::Vector3f Vn300::gyro_radps() {
-  Eigen::Vector3f gyro;
-  gyro(0) = comp_imu_.payload.gyro_x;
-  gyro(1) = comp_imu_.payload.gyro_y;
-  gyro(2) = comp_imu_.payload.gyro_z;
-  return gyro;
-}
-
-Eigen::Vector3f Vn300::mag_ut() {
-  Eigen::Vector3f mag;
-  mag(0) = conversions::Gauss_to_uT(comp_imu_.payload.mag_x);
-  mag(1) = conversions::Gauss_to_uT(comp_imu_.payload.mag_y);
-  mag(2) = conversions::Gauss_to_uT(comp_imu_.payload.mag_z);
-  return mag;
-}
-
-Eigen::Vector3f Vn300::uncomp_accel_mps2() {
-  Eigen::Vector3f accel;
-  accel(0) = uncomp_imu_.payload.accel_x;
-  accel(1) = uncomp_imu_.payload.accel_y;
-  accel(2) = uncomp_imu_.payload.accel_z;
-  return accel;
-}
-
-Eigen::Vector3f Vn300::uncomp_gyro_radps() {
-  Eigen::Vector3f gyro;
-  gyro(0) = uncomp_imu_.payload.gyro_x;
-  gyro(1) = uncomp_imu_.payload.gyro_y;
-  gyro(2) = uncomp_imu_.payload.gyro_z;
-  return gyro;
-}
-
-Eigen::Vector3f Vn300::uncomp_mag_ut() {
-  Eigen::Vector3f mag;
-  mag(0) = conversions::Gauss_to_uT(uncomp_imu_.payload.mag_x);
-  mag(1) = conversions::Gauss_to_uT(uncomp_imu_.payload.mag_y);
-  mag(2) = conversions::Gauss_to_uT(uncomp_imu_.payload.mag_z);
-  return mag;
-}
-
-}  // namespace sensors
+}  // namespace bfs
