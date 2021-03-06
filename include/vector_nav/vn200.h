@@ -380,6 +380,6 @@ class Vn200 {
   VnImuMeasurements uncomp_imu_;
 };
 
-}  // namespace sensors
+}  // namespace bfs
 
 #endif  // INCLUDE_VECTOR_NAV_VN200_H_
