@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.0.1
+- Updated tooling to support Teensy 4.x
+
 ## v2.0.0
 - Updated namespace to *bfs*
 - Updated to support units v3.1.0
