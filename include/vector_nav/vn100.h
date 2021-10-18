@@ -209,8 +209,11 @@ class Vn100 {
  private:
   /* Register reading and writing */
   VectorNav vn_;
+  /* Expected product name */
+  static constexpr char PROD_NAME_[] = {"VN-100"};
   /* Registers */
   VectorNav::ErrorCode error_code_;
+  VnModelNumber model_num_;
   VnSerialNumber serial_num_;
   VnSynchronizationControl sync_cntrl_;
   VnReferenceFrameRotation rotation_;
