@@ -47,6 +47,8 @@ class VectorNav {
     ERROR_OUTPUT_BUFFER_OVERFLOW = 11,
     ERROR_INSUFFICIENT_BAUD_RATE = 12,
     ERROR_NULL_PTR = 13,
+    ERROR_NO_COMM = 14,
+    ERROR_WRONG_MODEL = 15,
     ERROR_ERROR_BUFFER_OVERFLOW = 255
   };
   VectorNav(SPIClass *bus, uint8_t cs) : bus_(bus), cs_(cs) {}

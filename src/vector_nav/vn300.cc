@@ -36,7 +36,20 @@ namespace bfs {
 bool Vn300::Begin() {
   vn_.Init();
   error_code_ = vn_.ReadRegister(&serial_num_);
-  return (error_code_ == VectorNav::ERROR_SUCCESS);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  if (serial_num_.payload.serial_num == 0) {
+    error_code_ = VectorNav::ERROR_NO_COMM;
+    return false;
+  }
+  error_code_ = vn_.ReadRegister(&model_num_);
+  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+  for (std::size_t i = 0; i < sizeof(PROD_NAME_) - 1; i++) {
+    if (model_num_.payload.product_name[i] != PROD_NAME_[i]) {
+      error_code_ = VectorNav::ERROR_WRONG_MODEL;
+      return false;
+    }
+  }
+  return true;
 }
 
 bool Vn300::EnableDrdyInt(const DrdyMode mode, const uint16_t srd) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.2
+- Updated tooling for Teensy 4.1
+- Updated Vn100, Vn200, and Vn300 *Begin* methods to check for a valid serial number to verify communication. Also checks the model (i.e. VN-300) to ensure the correct object is being used for the sensor.
+
 ## v2.0.1
 - Updated tooling to support Teensy 4.x
 

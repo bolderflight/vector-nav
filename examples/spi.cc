@@ -25,14 +25,16 @@
 
 #include "vector_nav/vector_nav.h"
 
-bfs::Vn200 vn(&SPI, 10);
+bfs::Vn300 vn(&SPI, 34);
 
 int main() {
   Serial.begin(115200);
   while(!Serial) {}
   /* Initialize communication */
   if (!vn.Begin()) {
+    Serial.print("Error Code: ");
     Serial.println(vn.error_code());
+    while (1) {}
   }
   while (1) {
     /* Read sensor and print values */
