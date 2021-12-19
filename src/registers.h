@@ -23,9 +23,12 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef INCLUDE_VECTOR_NAV_REGISTERS_H_
-#define INCLUDE_VECTOR_NAV_REGISTERS_H_
+#ifndef SRC_REGISTERS_H_
+#define SRC_REGISTERS_H_
 
+#if defined(ARDUINO)
+#include <Arduino.h>
+#endif
 #include <cstdint>
 
 namespace bfs {
@@ -769,4 +772,4 @@ struct VnInsBasicConfiguration {
 
 }  // namespace bfs
 
-#endif  // INCLUDE_VECTOR_NAV_REGISTERS_H_
+#endif  // SRC_REGISTERS_H_

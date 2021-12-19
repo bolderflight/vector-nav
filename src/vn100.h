@@ -23,16 +23,21 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef INCLUDE_VECTOR_NAV_VN100_H_
-#define INCLUDE_VECTOR_NAV_VN100_H_
+#ifndef SRC_VN100_H_
+#define SRC_VN100_H_
 
+#if defined(ARDUINO)
+#include <Arduino.h>
+#include <SPI.h>
+#else
+#include "core/core.h"
+#endif
 #include <cstddef>
 #include <cstdint>
-#include "Eigen/Core"
+#include "eigen.h"  // NOLINT
 #include "Eigen/Dense"
-#include "core/core.h"
-#include "vector_nav/vn.h"
-#include "vector_nav/registers.h"
+#include "vn.h"  // NOLINT
+#include "registers.h"  // NOLINT
 #include "units.h"  // NOLINT
 
 namespace bfs {
@@ -201,10 +206,10 @@ class Vn100 {
     mag(2) = imu_.payload.mag_z * 100.0f;
     return mag;
   }
-  inline float die_temperature_c() const {
+  inline float die_temp_c() const {
     return imu_.payload.temp;
   }
-  inline float pressure_pa() const {
+  inline float pres_pa() const {
     return imu_.payload.pressure * 1000.0f;
   }
 
@@ -227,4 +232,4 @@ class Vn100 {
 
 }  // namespace bfs
 
-#endif  // INCLUDE_VECTOR_NAV_VN100_H_
+#endif  // SRC_VN100_H_

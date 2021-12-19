@@ -23,10 +23,15 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef INCLUDE_VECTOR_NAV_VN_H_
-#define INCLUDE_VECTOR_NAV_VN_H_
+#ifndef SRC_VN_H_
+#define SRC_VN_H_
 
+#if defined(ARDUINO)
+#include <Arduino.h>
+#include <SPI.h>
+#else
 #include "core/core.h"
+#endif
 
 namespace bfs {
 
@@ -51,12 +56,11 @@ class VectorNav {
     ERROR_WRONG_MODEL = 15,
     ERROR_ERROR_BUFFER_OVERFLOW = 255
   };
-  VectorNav(SPIClass *bus, uint8_t cs) : bus_(bus), cs_(cs) {}
+  VectorNav(SPIClass *bus, const uint8_t cs) : bus_(bus), cs_(cs) {}
   /* Initialize communication */
   void Init() {
     pinMode(cs_, OUTPUT);
     digitalWriteFast(cs_, HIGH);
-    bus_->begin();
   }
   /* Read register */
   template<class REG>
@@ -354,4 +358,4 @@ class VectorNav {
 
 }  // namespace bfs
 
-#endif  // INCLUDE_VECTOR_NAV_VN_H_
+#endif  // SRC_VN_H_

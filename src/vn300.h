@@ -23,21 +23,26 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef INCLUDE_VECTOR_NAV_VN200_H_
-#define INCLUDE_VECTOR_NAV_VN200_H_
+#ifndef SRC_VN300_H_
+#define SRC_VN300_H_
 
+#if defined(ARDUINO)
+#include <Arduino.h>
+#include <SPI.h>
+#else
+#include "core/core.h"
+#endif
 #include <cstddef>
 #include <cstdint>
-#include "Eigen/Core"
+#include "eigen.h"  // NOLINT
 #include "Eigen/Dense"
-#include "core/core.h"
-#include "vector_nav/vn.h"
-#include "vector_nav/registers.h"
+#include "vn.h"  // NOLINT
+#include "registers.h"  // NOLINT
 #include "units.h"  // NOLINT
 
 namespace bfs {
 
-class Vn200 {
+class Vn300 {
  public:
   enum DrdyMode : uint8_t {
     IMU_START = 1,
@@ -64,22 +69,17 @@ class Vn200 {
     FIX_3D = 3,
     FIX_SBAS = 4
   };
-  enum PpsSource : uint8_t {
-    PPS_RISING = 0,
-    PPS_FALLING = 1,
-    SYNC_IN_RISING = 2,
-    SYNC_IN_FALLING = 3
-  };
-  Vn200(SPIClass *bus, const uint8_t cs) : vn_(bus, cs) {}
+  Vn300(SPIClass *bus, const uint8_t cs) : vn_(bus, cs) {}
   bool Begin();
   bool EnableDrdyInt(const DrdyMode mode, const uint16_t srd);
   bool DisableDrdyInt();
-  bool EnableExternalGnss(const PpsSource pps);
-  bool DisableExternalGnss();
   bool ApplyRotation(const Eigen::Matrix3f &c);
   bool GetRotation(Eigen::Matrix3f *c);
   bool SetAntennaOffset(const Eigen::Vector3f &b);
   bool GetAntennaOffset(Eigen::Vector3f *b);
+  bool SetCompassBaseline(const Eigen::Vector3f &pos,
+                          const Eigen::Vector3f &uncert);
+  bool GetCompassBaseline(Eigen::Vector3f *pos, Eigen::Vector3f *uncert);
   bool SetMagFilter(const FilterMode mode, const uint16_t window);
   bool GetMagFilter(FilterMode *mode, uint16_t *window);
   bool SetAccelFilter(const FilterMode mode, const uint16_t window);
@@ -93,8 +93,6 @@ class Vn200 {
   bool DrdyCallback(const uint8_t int_pin, void (*function)());
   bool Read();
   inline VectorNav::ErrorCode error_code() {return error_code_;}
-  bool SendExternalGnssData(const VnGnssSolutionLla &ref);
-  bool SendExternalGnssData(const VnGnssSolutionEcef &ref);
 
   /* Commands */
   bool WriteSettings() {
@@ -137,6 +135,12 @@ class Vn200 {
   }
   inline bool ins_gnss_error() const {
     return ins_gnss_error_;
+  }
+  inline bool ins_gnss_heading() const {
+    return ins_gnss_heading_;
+  }
+  inline bool ins_gnss_compass() const {
+    return ins_gnss_compass_;
   }
   inline double ins_time_s() const {
     return ins_.payload.time;
@@ -203,7 +207,7 @@ class Vn200 {
   inline GnssFix gnss_fix() const {
     return static_cast<GnssFix>(gnss_.payload.gps_fix);
   }
-  inline uint8_t gnss_num_satellites() const {
+  inline uint8_t gnss_num_sats() const {
     return gnss_.payload.num_sats;
   }
   inline double gnss_lat_rad() const {
@@ -349,10 +353,10 @@ class Vn200 {
     mag(2) = uncomp_imu_.payload.mag_z * 100.0f;
     return mag;
   }
-  inline float die_temperature_c() const {
+  inline float die_temp_c() const {
     return uncomp_imu_.payload.temp;
   }
-  inline float pressure_pa() const {
+  inline float pres_pa() const {
     return uncomp_imu_.payload.pressure * 1000.0f;
   }
 
@@ -360,7 +364,7 @@ class Vn200 {
   /* Register reading and writing */
   VectorNav vn_;
   /* Expected product name */
-  static constexpr char PROD_NAME_[] = {"VN-200"};
+  static constexpr char PROD_NAME_[] = {"VN-300"};
   /* Data */
   uint8_t ins_status_buff_[2];
   InsMode ins_mode_;
@@ -370,14 +374,16 @@ class Vn200 {
   bool ins_imu_error_;
   bool ins_mag_press_error_;
   bool ins_gnss_error_;
+  bool ins_gnss_heading_;
+  bool ins_gnss_compass_;
   /* Registers */
   VectorNav::ErrorCode error_code_;
   VnModelNumber model_num_;
   VnSerialNumber serial_num_;
   VnSynchronizationControl sync_cntrl_;
   VnReferenceFrameRotation rotation_;
-  VnGnssConfiguration gnss_config_;
   VnGnssAntennaOffset antenna_;
+  VnGpsCompassBaseline baseline_;
   VnImuFilteringConfiguration filter_;
   VnInsSolutionLla ins_;
   VnGnssSolutionLla gnss_;
@@ -387,4 +393,4 @@ class Vn200 {
 
 }  // namespace bfs
 
-#endif  // INCLUDE_VECTOR_NAV_VN200_H_
+#endif  // SRC_VN300_H_
