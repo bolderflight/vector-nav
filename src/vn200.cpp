@@ -23,12 +23,17 @@
 * IN THE SOFTWARE.
 */
 
-#include "vector_nav/vn200.h"
-#include "Eigen/Core"
-#include "Eigen/Dense"
+#if defined(ARDUINO)
+#include <Arduino.h>
+#include <SPI.h>
+#else
 #include "core/core.h"
-#include "vector_nav/vector_nav.h"
-#include "vector_nav/registers.h"
+#endif
+#include "vn200.h"  // NOLINT
+#include "eigen.h"
+#include "Eigen/Dense"
+#include "vector_nav.h"  // NOLINT
+#include "registers.h"  // NOLINT
 #include "units.h"  // NOLINT
 
 namespace bfs {
@@ -251,7 +256,7 @@ bool Vn200::DrdyCallback(const uint8_t int_pin, void (*function)()) {
   }
   pinMode(int_pin, INPUT);
   attachInterrupt(int_pin, function, RISING);
-  error_code_ == VectorNav::ERROR_SUCCESS;
+  error_code_ = VectorNav::ERROR_SUCCESS;
   return true;
 }
 

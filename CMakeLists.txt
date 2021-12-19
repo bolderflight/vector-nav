@@ -11,7 +11,7 @@ if (DEFINED MCU)
   set(CMAKE_TOOLCHAIN_FILE "${mcu_support_SOURCE_DIR}/cmake/cortex.cmake")
   # Project information
   project(VectorNav
-    VERSION 2.0.3
+    VERSION 3.0.0
     DESCRIPTION "VectorNav driver"
     LANGUAGES CXX
   )
@@ -41,15 +41,15 @@ if (DEFINED MCU)
   FetchContent_MakeAvailable(units)
   # Add the library target
   add_library(vector_nav
-    include/vector_nav/vector_nav.h
-    include/vector_nav/registers.h
-    include/vector_nav/vn.h
-    include/vector_nav/vn100.h
-    include/vector_nav/vn200.h
-    include/vector_nav/vn300.h
-    src/vector_nav/vn100.cc
-    src/vector_nav/vn200.cc
-    src/vector_nav/vn300.cc
+    src/vector_nav.h
+    src/registers.h
+    src/vn.h
+    src/vn100.h
+    src/vn200.h
+    src/vn300.h
+    src/vn100.cpp
+    src/vn200.cpp
+    src/vn300.cpp
   )
   # Link libraries
   target_link_libraries(vector_nav
@@ -60,13 +60,13 @@ if (DEFINED MCU)
   )
   # Setup include directories 
   target_include_directories(vector_nav PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
   )
   # Example and test if this project is built separately
   if (PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
     # Add the spi example target
-    add_executable(spi_example examples/spi.cc)
+    add_executable(spi_example examples/cmake/spi.cc)
     # Add the includes
     target_include_directories(spi_example PUBLIC 
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

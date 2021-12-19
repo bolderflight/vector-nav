@@ -23,7 +23,7 @@
 * IN THE SOFTWARE.
 */
 
-#include "vector_nav/vector_nav.h"
+#include "vector_nav.h"
 
 bfs::Vn300 vn(&SPI, 34);
 

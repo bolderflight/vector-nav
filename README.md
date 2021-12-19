@@ -1,17 +1,32 @@
-# vector_nav
-Driver for VectorNav Inertial Measurement Unit (IMU) and Inertial Navigation System (INS) sensors.
+[![Pipeline](https://gitlab.com/bolderflight/software/vector_nav/badges/main/pipeline.svg)](https://gitlab.com/bolderflight/software/vector_nav/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+![Bolder Flight Systems Logo](img/logo-words_75.png) &nbsp; &nbsp; ![Arduino Logo](img/arduino_logo_75.png)
+
+# VectorNav
+Driver for VectorNav Inertial Measurement Unit (IMU) and Inertial Navigation System (INS) sensors. This library is compatible with Arduino ARM and with CMake build systems.
    * [License](LICENSE.md)
    * [Changelog](CHANGELOG.md)
    * [Contributing guide](CONTRIBUTING.md)
 
-## Description
-VectorNav produces a line of high accuracy IMU and INS sensors. The MEMS sensors in these units are temperature calibrated and an integrated microcontroller provides real-time Extended Kalman Filtering (EKF). The VN-100 is an IMU and Attitude and Heading Reference System (AHRS) providing IMU data and an estimate of the vehicle's attitude and heading. The VN-200 and VN-300 include an integrated GNSS receiver, providing GNSS data and extending the sensor to an Inertial Navigation System (INS), providing high rate estimates of the vehicle's velocity and position in addition to attitude. The VN-300 utilizes two GNSS receivers to enhance heading accuracy. This library communicates with the VN-100, VN-200, and VN-300 sensors using SPI communication.
+# Description
+VectorNav produces a line of high accuracy IMU and INS sensors. The MEMS sensors in these units are temperature calibrated and an integrated microcontroller provides real-time Extended Kalman Filtering (EKF). The VN-100 is an IMU and Attitude and Heading Reference System (AHRS) providing IMU data and an estimate of the vehicle's attitude and heading. The VN-200 and VN-300 include an integrated GNSS receiver, providing GNSS data and extending the sensor to an Inertial Navigation System (INS), providing high rate estimates of the vehicle's velocity and position in addition to attitude. VN-200 and VN-300 attitude accuracy is higher than the VN-100, especially in flight dynamics and manuevers, such as prolonged turns. The VN-300 utilizes two GNSS receivers to enhance heading accuracy at low speeds. This library communicates with the VN-100, VN-200, and VN-300 sensors using SPI communication.
 
-## Installation
+# Installation
+
+## Arduino
+Simply clone or download and extract the zipped library into your Arduino/libraries folder. In addition to this library, the [Bolder Flight Systems Units library](https://github.com/bolderflight/units) and [Bolder Flight Systems Eigen library](https://github.com/bolderflight/eigen) must be installed. The library is added as:
+
+```C++
+#include "vector_nav.h"
+```
+
+An example is located in *examples/arduino/spi_example/spi_example.ino*. This library is tested with Teensy 3.x, 4.x, and LC devices and is expected to work with other Arduino ARM devices. It is **not** expected to work with ARM devices.
+
+## CMake
 CMake is used to build this library, which is exported as a library target called *vector_nav*. The header is added as:
 
-```
-#include "vector_nav/vector_nav.h"
+```C++
+#include "vector_nav.h"
 ```
 
 The library can be also be compiled stand-alone using the CMake idiom of creating a *build* directory and then, from within that directory issuing:
@@ -21,7 +36,7 @@ cmake .. -DMCU=MK66FX1M0
 make
 ```
 
-This will build the library and an example executables called *spi_example*. The example executable source files are located at *examples/spi_example.cc*. Notice that the *cmake* command includes a define specifying the microcontroller the code is being compiled for. This is required to correctly configure the code, CPU frequency, and compile/linker options. The available MCUs are:
+This will build the library and an example executables called *spi_example*. The example executable source files are located at *examples/cmake/spi_example.cc*. Notice that the *cmake* command includes a define specifying the microcontroller the code is being compiled for. This is required to correctly configure the code, CPU frequency, and compile/linker options. The available MCUs are:
    * MK20DX128
    * MK20DX256
    * MK64FX512
@@ -32,28 +47,28 @@ This will build the library and an example executables called *spi_example*. The
 
 These are known to work with the same packages used in Teensy products. Also switching packages is known to work well, as long as it's only a package change.
 
-The *spi_example* target creates an executable for communicating with the sensor using SPI communication. The target also has a *_hex* for creating the hex file to upload to the microcontroller. 
+The *spi_example* target creates an executable for communicating with the sensor using SPI communication. This target also has a *_hex* for creating the hex file and an *_upload* for using the [Teensy CLI Uploader](https://www.pjrc.com/teensy/loader_cli.html) to flash the Teensy. Please note that the CMake build tooling is expected to be run under Linux or WSL, instructions for setting up your build environment can be found in our [build-tools repo](https://github.com/bolderflight/build-tools). 
 
-## Namespace
+# Namespace
 This library is within the namespace *bfs*.
 
-## Registers
+# Registers
 *registers.h* defines all of the VectorNav configuration and data registers. Each register is defined as a struct, whose name matches the register name within the VectorNav User Manuals. The structs define the register ID, the register size, whether it is read only, and the register payload. The payload contains the register fields that are written to or read from.
 
 The concept is the *VectorNav* class initializes communication with the sensor and provides methods for writing and reading these register structs to/from the sensor. The *VectorNav* class, including structs defined in *registers.h*, enables using any of the sensor's available functionality. The *Vn100*, *Vn200*, and *Vn300* classes wrap around the *VectorNav* class to provide convenience methods for the most common configuration and data collection functions. Whereas these classes provide limited functionality, they provide a more intuitive interface for the majority of use cases.
 
-## Classes
+# Classes
    * [VectorNav](#vector_nav): enables initializing communication and writing / reading register structs.
    * [Vn100](#vn100): provides convenience methods for the VN-100 IMU / AHRS.
    * [Vn200](#vn200): provides convenience methods for the VN-200 GNSS-aided INS.
    * [Vn300](#vn300): provides convenience methods for the VN-300 GNSS-aided INS.
 
-## VectorNav<a name="vector_nav"></a>
+# VectorNav<a name="vector_nav"></a>
 This class enables initializing communication with the VectorNav and writing and reading register structs, defined in *registers.h*, to the device.
 
-### Methods
+## Methods
 
-**VectorNav(SPIClass &ast;bus, uint8_t cs)** Constructs a *VectorNav* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
+**VectorNav(SPIClass &ast;bus, const uint8_t cs)** Constructs a *VectorNav* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
 bfs::VectorNav vn(&SPI, 2);
@@ -77,11 +92,14 @@ bfs::VectorNav vn(&SPI, 2);
 | ERROR_OUTPUT_BUFFER_OVERFLOW | 11 |
 | ERROR_INSUFFICIENT_BAUD_RATE | 12 |
 | ERROR_NULL_PTR | 13 |
+| ERROR_NO_COMM | 14 |
+| ERROR_WRONG_MODEL | 15 |
 | ERROR_ERROR_BUFFER_OVERFLOW | 255 |
 
-**void Init()** Initializes communication with the sensor. **Note:** this method simply initializes the communication bus and chip select pin. It does not test whether communication with the VectorNav sensor is successful. It is recommend to read a register to test for successful communication.
+**void Init()** Initializes communication with the sensor. **Note:** this method simply initializes the communication bus and chip select pin. It does not test whether communication with the VectorNav sensor is successful. It is recommend to read a register to test for successful communication. The communication bus is not initialized within this library and must be initialized seperately; this enhances compatibility with other sensors that may on the same bus.
 
 ```C++
+SPI.begin();
 vn.Init();
 ```
 
@@ -121,10 +139,10 @@ ErrorCode err = vn.WriteRegister(ant);
 
 **ErrorCode SetFilterBias()** Commands the VectorNav to copy the current filter bias estimates ino volatile memory. These can then be saved in non-volatile memory using the *WriteSettings* command. **Note:** This command is only available on the VN-200 and VN-300.
 
-## Vn100<a name="vn100"></a>
+# Vn100<a name="vn100"></a>
 This class wraps around the *VectorNav* class to provide convenience methods for the most common functionality using the VN-100 sensor.
 
-### Methods
+## Methods
 
 **Vn100(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn100* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
@@ -140,9 +158,10 @@ if (!vn.Begin()) {
 }
 ```
 
-**bool Begin()** Initializes communication with the VN-100 sensor. Returns true on successfully establishing communication and false on failure.
+**bool Begin()** Initializes communication with the VN-100 sensor. Returns true on successfully establishing communication and false on failure. The communication bus is not initialized within this library and must be initialized seperately; this enhances compatibility with other sensors that may on the same bus.
 
 ```C++
+SPI.begin();
 bool status = vn.Begin();
 ```
 
@@ -295,9 +314,9 @@ if (vn.Read()) {
 
 **Eigen::Vector3f uncomp_mag_ut()** Returns the uncompensated magnetometer as a vector, uT.
 
-**float die_temperature_c()** Returns the sensor die temperature, C.
+**float die_temp_c()** Returns the sensor die temperature, C.
 
-**float pressure_pa()** Returns the measured static pressure, Pa.
+**float pres_pa()** Returns the measured static pressure, Pa.
 
 **bool WriteSettings()** Writes the current settings to the VectorNav non-volatile memory.
 
@@ -313,10 +332,10 @@ if (vn.Read()) {
 
 **bool Tare()** Commands the VectorNav to zero out its current orientation.
 
-## Vn200<a name="vn200"></a>
+# Vn200<a name="vn200"></a>
 This class wraps around the *VectorNav* class to provide convenience methods for the most common functionality using the VN-200 sensor.
 
-### Methods
+## Methods
 
 **Vn200(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn200* object given a pointer to the SPI bus object that is is communicating over and the chip select pin number.
 
@@ -332,9 +351,10 @@ if (!vn.Begin()) {
 }
 ```
 
-**bool Begin()** Initializes communication with the VN-200 sensor. Returns true on successfully establishing communication and false on failure.
+**bool Begin()** Initializes communication with the VN-200 sensor. Returns true on successfully establishing communication and false on failure. The communication bus is not initialized within this library and must be initialized seperately; this enhances compatibility with other sensors that may on the same bus.
 
 ```C++
+SPI.begin();
 bool status = vn.Begin();
 ```
 
@@ -603,9 +623,9 @@ if (vn.Read()) {
 
 **Eigen::Vector3f uncomp_mag_ut()** Returns the uncompensated magnetometer as a vector, uT.
 
-**float die_temperature_c()** Returns the sensor die temperature, C.
+**float die_temp_c()** Returns the sensor die temperature, C.
 
-**float pressure_pa()** Returns the measured static pressure, Pa.
+**float pres_pa()** Returns the measured static pressure, Pa.
 
 **bool WriteSettings()** Writes the current settings to the VectorNav non-volatile memory.
 
@@ -621,10 +641,10 @@ if (vn.Read()) {
 
 **bool SetFilterBias()** Commands the VectorNav to copy the current filter bias estimates ino volatile memory. These can then be saved in non-volatile memory using the *WriteSettings* command.
 
-## Vn300<a name="vn300"></a>
+# Vn300<a name="vn300"></a>
 This class wraps around the *VectorNav* class to provide convenience methods for the most common functionality using the VN-300 sensor.
 
-### Methods
+## Methods
 
 **Vn300(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn300* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
@@ -640,9 +660,10 @@ if (!vn.Begin()) {
 }
 ```
 
-**bool Begin()** Initializes communication with the VN-300 sensor. Returns true on successfully establishing communication and false on failure.
+**bool Begin()** Initializes communication with the VN-300 sensor. Returns true on successfully establishing communication and false on failure. The communication bus is not initialized within this library and must be initialized seperately; this enhances compatibility with other sensors that may on the same bus.
 
 ```C++
+SPI.begin();
 bool status = vn.Begin();
 ```
 
@@ -916,9 +937,9 @@ if (vn.Read()) {
 
 **Eigen::Vector3f uncomp_mag_ut()** Returns the uncompensated magnetometer as a vector, uT.
 
-**float die_temperature_c()** Returns the sensor die temperature, C.
+**float die_temp_c()** Returns the sensor die temperature, C.
 
-**float pressure_pa()** Returns the measured static pressure, Pa.
+**float pres_pa()** Returns the measured static pressure, Pa.
 
 **bool WriteSettings()** Writes the current settings to the VectorNav non-volatile memory.
 
@@ -933,4 +954,3 @@ if (vn.Read()) {
 **bool SetGyroBias()** Commands the VectorNav to copy the current gyro bias estimates into volatile memory. These can then be saved in non-volatile memory using the *WriteSettings* command.
 
 **bool SetFilterBias()** Commands the VectorNav to copy the current filter bias estimates ino volatile memory. These can then be saved in non-volatile memory using the *WriteSettings* command.
-

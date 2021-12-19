@@ -23,16 +23,21 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef INCLUDE_VECTOR_NAV_VN300_H_
-#define INCLUDE_VECTOR_NAV_VN300_H_
+#ifndef SRC_VN300_H_
+#define SRC_VN300_H_
 
+#if defined(ARDUINO)
+#include <Arduino.h>
+#include <SPI.h>
+#else
+#include "core/core.h"
+#endif
 #include <cstddef>
 #include <cstdint>
-#include "Eigen/Core"
+#include "eigen.h"
 #include "Eigen/Dense"
-#include "core/core.h"
-#include "vector_nav/vn.h"
-#include "vector_nav/registers.h"
+#include "vn.h"  // NOLINT
+#include "registers.h"  // NOLINT
 #include "units.h"  // NOLINT
 
 namespace bfs {
@@ -202,7 +207,7 @@ class Vn300 {
   inline GnssFix gnss_fix() const {
     return static_cast<GnssFix>(gnss_.payload.gps_fix);
   }
-  inline uint8_t gnss_num_satellites() const {
+  inline uint8_t gnss_num_sats() const {
     return gnss_.payload.num_sats;
   }
   inline double gnss_lat_rad() const {
@@ -348,10 +353,10 @@ class Vn300 {
     mag(2) = uncomp_imu_.payload.mag_z * 100.0f;
     return mag;
   }
-  inline float die_temperature_c() const {
+  inline float die_temp_c() const {
     return uncomp_imu_.payload.temp;
   }
-  inline float pressure_pa() const {
+  inline float pres_pa() const {
     return uncomp_imu_.payload.pressure * 1000.0f;
   }
 
@@ -388,4 +393,4 @@ class Vn300 {
 
 }  // namespace bfs
 
-#endif  // INCLUDE_VECTOR_NAV_VN300_H_
+#endif  // SRC_VN300_H_

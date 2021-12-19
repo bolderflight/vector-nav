@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.0
+- Updated to support CMake and Arduino builds
+
 ## v2.0.3
 - Updated to use mcu-support repo
 
