@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.1
+- Fixing issue in library.properties
+
 ## v3.0.0
 - Updated to support CMake and Arduino builds
 
