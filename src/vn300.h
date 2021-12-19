@@ -34,7 +34,7 @@
 #endif
 #include <cstddef>
 #include <cstdint>
-#include "eigen.h"
+#include "eigen.h"  // NOLINT
 #include "Eigen/Dense"
 #include "vn.h"  // NOLINT
 #include "registers.h"  // NOLINT

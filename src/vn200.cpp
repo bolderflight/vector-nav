@@ -30,7 +30,7 @@
 #include "core/core.h"
 #endif
 #include "vn200.h"  // NOLINT
-#include "eigen.h"
+#include "eigen.h"  // NOLINT
 #include "Eigen/Dense"
 #include "vector_nav.h"  // NOLINT
 #include "registers.h"  // NOLINT
