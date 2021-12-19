@@ -29,9 +29,11 @@
 #include "core/core.h"
 #include "vector_nav/vector_nav.h"
 #include "vector_nav/registers.h"
-#include "units/units.h"
+#include "units.h"
 
 namespace bfs {
+
+constexpr char Vn200::PROD_NAME_[];
 
 bool Vn200::Begin() {
   vn_.Init();

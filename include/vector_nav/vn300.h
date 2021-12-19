@@ -31,7 +31,9 @@
 #include "core/core.h"
 #include "vector_nav/vn.h"
 #include "vector_nav/registers.h"
-#include "units/units.h"
+#include "units.h"
+#include <cstddef>
+#include <cstdint>
 
 namespace bfs {
 
