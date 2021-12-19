@@ -29,7 +29,7 @@
 #include "core/core.h"
 #include "vector_nav/vector_nav.h"
 #include "vector_nav/registers.h"
-#include "units.h"
+#include "units.h"  // NOLINT
 
 namespace bfs {
 
