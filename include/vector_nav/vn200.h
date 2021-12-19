@@ -26,12 +26,14 @@
 #ifndef INCLUDE_VECTOR_NAV_VN200_H_
 #define INCLUDE_VECTOR_NAV_VN200_H_
 
+#include <cstddef>
+#include <cstdint>
 #include "Eigen/Core"
 #include "Eigen/Dense"
 #include "core/core.h"
 #include "vector_nav/vn.h"
 #include "vector_nav/registers.h"
-#include "units/units.h"
+#include "units.h"  // NOLINT
 
 namespace bfs {
 

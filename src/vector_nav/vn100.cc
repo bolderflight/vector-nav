@@ -29,9 +29,11 @@
 #include "core/core.h"
 #include "vector_nav/vector_nav.h"
 #include "vector_nav/registers.h"
-#include "units/units.h"
+#include "units.h"  // NOLINT
 
 namespace bfs {
+
+constexpr char Vn100::PROD_NAME_[];
 
 bool Vn100::Begin() {
   vn_.Init();
