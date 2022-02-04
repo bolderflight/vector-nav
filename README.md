@@ -20,7 +20,7 @@ Simply clone or download and extract the zipped library into your Arduino/librar
 #include "vector_nav.h"
 ```
 
-An example is located in *examples/arduino/spi_example/spi_example.ino*. This library is tested with Teensy 3.x, 4.x, and LC devices and is expected to work with other Arduino ARM devices. It is **not** expected to work with ARM devices.
+An example is located in *examples/arduino/spi_example/spi_example.ino*. This library is tested with Teensy 3.x, 4.x, and LC devices and is expected to work with other Arduino ARM devices. It is **not** expected to work with AVR devices.
 
 ## CMake
 CMake is used to build this library, which is exported as a library target called *vector_nav*. The header is added as:
