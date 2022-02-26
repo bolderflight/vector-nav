@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.1.0
+- Added default constructor and a Config method to configure the sensor
+
 ## v3.0.1
 - Fixing issue in library.properties
 

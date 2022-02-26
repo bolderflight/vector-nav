@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems Inc
+* Copyright (c) 2022 Bolder Flight Systems Inc
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the “Software”), to
@@ -23,8 +23,8 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef SRC_VN_H_
-#define SRC_VN_H_
+#ifndef VECTOR_NAV_SRC_VN_H_  // NOLINT
+#define VECTOR_NAV_SRC_VN_H_
 
 #if defined(ARDUINO)
 #include <Arduino.h>
@@ -56,7 +56,12 @@ class VectorNav {
     ERROR_WRONG_MODEL = 15,
     ERROR_ERROR_BUFFER_OVERFLOW = 255
   };
+  VectorNav() {}
   VectorNav(SPIClass *bus, const uint8_t cs) : bus_(bus), cs_(cs) {}
+  void Config(SPIClass *bus, const uint8_t cs) {
+    bus_ = bus;
+    cs_ = cs;
+  }
   /* Initialize communication */
   void Init() {
     pinMode(cs_, OUTPUT);
@@ -358,4 +363,4 @@ class VectorNav {
 
 }  // namespace bfs
 
-#endif  // SRC_VN_H_
+#endif  // VECTOR_NAV_SRC_VN_H_

@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems Inc
+* Copyright (c) 2022 Bolder Flight Systems Inc
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the “Software”), to
@@ -23,8 +23,8 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef SRC_VN100_H_
-#define SRC_VN100_H_
+#ifndef VECTOR_NAV_SRC_VN100_H_  // NOLINT
+#define VECTOR_NAV_SRC_VN100_H_
 
 #if defined(ARDUINO)
 #include <Arduino.h>
@@ -55,7 +55,9 @@ class Vn100 {
     FILTER_COMP_ONLY = 2,
     FILTER_BOTH = 3
   };
+  Vn100() {}
   Vn100(SPIClass *bus, const uint8_t cs) : vn_(bus, cs) {}
+  void Config(SPIClass *bus, const uint8_t cs) {vn_.Config(bus, cs);}
   bool Begin();
   bool EnableDrdyInt(const DrdyMode mode, const uint16_t srd);
   bool DisableDrdyInt();
@@ -232,4 +234,4 @@ class Vn100 {
 
 }  // namespace bfs
 
-#endif  // SRC_VN100_H_
+#endif  // VECTOR_NAV_SRC_VN100_H_ NOLINT
