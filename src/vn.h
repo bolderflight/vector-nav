@@ -363,4 +363,4 @@ class VectorNav {
 
 }  // namespace bfs
 
-#endif  // VECTOR_NAV_SRC_VN_H_
+#endif  // VECTOR_NAV_SRC_VN_H_ NOLINT
