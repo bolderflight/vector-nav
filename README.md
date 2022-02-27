@@ -68,6 +68,8 @@ This class enables initializing communication with the VectorNav and writing and
 
 ## Methods
 
+**VectorNav()** Default constructor, requires calling *Config* method to setup the SPI bus and chip select pin.
+
 **VectorNav(SPIClass &ast;bus, const uint8_t cs)** Constructs a *VectorNav* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
@@ -95,6 +97,8 @@ bfs::VectorNav vn(&SPI, 2);
 | ERROR_NO_COMM | 14 |
 | ERROR_WRONG_MODEL | 15 |
 | ERROR_ERROR_BUFFER_OVERFLOW | 255 |
+
+**void Config(SPIClass &ast;bus, const uint8_t cs)** Sets up the SPI bus and chip select pin. Required if using the default constructor.
 
 **void Init()** Initializes communication with the sensor. **Note:** this method simply initializes the communication bus and chip select pin. It does not test whether communication with the VectorNav sensor is successful. It is recommend to read a register to test for successful communication. The communication bus is not initialized within this library and must be initialized seperately; this enhances compatibility with other sensors that may on the same bus.
 
@@ -144,6 +148,8 @@ This class wraps around the *VectorNav* class to provide convenience methods for
 
 ## Methods
 
+**Vn100()** Default constructor, requires calling the *Config* method to setup the SPI bus and chip select pin.
+
 **Vn100(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn100* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
@@ -157,6 +163,8 @@ if (!vn.Begin()) {
    Serial.println(vn.error_code());
 }
 ```
+
+**void Config(SPIClass &ast;bus, const uint8_t cs)** Sets up the SPI bus and chip select pin. Required if using the default constructor.
 
 **bool Begin()** Initializes communication with the VN-100 sensor. Returns true on successfully establishing communication and false on failure. The communication bus is not initialized within this library and must be initialized seperately; this enhances compatibility with other sensors that may on the same bus.
 
@@ -337,6 +345,8 @@ This class wraps around the *VectorNav* class to provide convenience methods for
 
 ## Methods
 
+**Vn200()** Default constructor, requires calling the *Config* method to setup the SPI bus and chip select pin.
+
 **Vn200(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn200* object given a pointer to the SPI bus object that is is communicating over and the chip select pin number.
 
 ```C++
@@ -350,6 +360,8 @@ if (!vn.Begin()) {
    Serial.println(vn.error_code());
 }
 ```
+
+**void Config(SPIClass &ast;bus, const uint8_t cs)** Sets up the SPI bus and chip select pin. Required if using the default constructor.
 
 **bool Begin()** Initializes communication with the VN-200 sensor. Returns true on successfully establishing communication and false on failure. The communication bus is not initialized within this library and must be initialized seperately; this enhances compatibility with other sensors that may on the same bus.
 
@@ -646,6 +658,8 @@ This class wraps around the *VectorNav* class to provide convenience methods for
 
 ## Methods
 
+**Vn300()** Default constructor, requires calling the *Config* method to setup the SPI bus and chip select pin.
+
 **Vn300(SPIClass &ast;bus, const uint8_t cs)** Constructs a *Vn300* object given a pointer to the SPI bus object that it is communicating over and the chip select pin number.
 
 ```C++
@@ -659,6 +673,8 @@ if (!vn.Begin()) {
    Serial.println(vn.error_code());
 }
 ```
+
+**void Config(SPIClass &ast;bus, const uint8_t cs)** Sets up the SPI bus and chip select pin. Required if using the default constructor.
 
 **bool Begin()** Initializes communication with the VN-300 sensor. Returns true on successfully establishing communication and false on failure. The communication bus is not initialized within this library and must be initialized seperately; this enhances compatibility with other sensors that may on the same bus.
 

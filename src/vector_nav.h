@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems Inc
+* Copyright (c) 2022 Bolder Flight Systems Inc
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the “Software”), to
@@ -23,8 +23,8 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef SRC_VECTOR_NAV_H_
-#define SRC_VECTOR_NAV_H_
+#ifndef VECTOR_NAV_SRC_VECTOR_NAV_H_  // NOLINT
+#define VECTOR_NAV_SRC_VECTOR_NAV_H_
 
 #if defined(ARDUINO)
 #include <Arduino.h>
@@ -35,4 +35,4 @@
 #include "vn200.h"  // NOLINT
 #include "vn300.h"  // NOLINT
 
-#endif  // SRC_VECTOR_NAV_H_
+#endif  // VECTOR_NAV_SRC_VECTOR_NAV_H_ NOLINT

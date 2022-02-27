@@ -25,13 +25,14 @@
 
 #include "vector_nav.h"
 
-bfs::Vn300 vn(&SPI, 34);
+bfs::Vn300 vn;
 
 int main() {
   Serial.begin(115200);
   while(!Serial) {}
   /* Initialize communication */
   SPI.begin();
+  vn.Config(&SPI, 34);
   if (!vn.Begin()) {
     Serial.print("Error Code: ");
     Serial.println(vn.error_code());
