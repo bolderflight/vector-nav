@@ -30,15 +30,12 @@
 #include <Arduino.h>
 #include <SPI.h>
 #else
-#include "core/core.h"
-#endif
 #include <cstddef>
 #include <cstdint>
-#include "eigen.h"  // NOLINT
-#include "Eigen/Dense"
+#include "core/core.h"
+#endif
 #include "vn.h"  // NOLINT
 #include "registers.h"  // NOLINT
-#include "units.h"  // NOLINT
 
 namespace bfs {
 
@@ -61,8 +58,33 @@ class Vn100 {
   bool Begin();
   bool EnableDrdyInt(const DrdyMode mode, const uint16_t srd);
   bool DisableDrdyInt();
-  bool ApplyRotation(const Eigen::Matrix3f &c);
-  bool GetRotation(Eigen::Matrix3f *c);
+  template<size_t M, size_t N>
+  bool ApplyRotation(const float (&c)[M][N]) {
+    static_assert(M == 3, "Expecting 3 x 3 matrix");
+    static_assert(N == 3, "Expecting 3 x 3 matrix");
+    for (int8_t m = 0; m < M; m++) {
+      for (int8_t n = 0; n < N; n++) {
+        rotation_.payload.c[m][n] = c[m][n];
+      }
+    }
+    error_code_ = vn_.WriteRegister(rotation_);
+    vn_.WriteSettings();
+    vn_.Reset();
+    return (error_code_ == VectorNav::ERROR_SUCCESS);
+  }
+  template<size_t M, size_t N>
+  bool GetRotation(float (&c)[M][N]) {
+    static_assert(M == 3, "Expecting 3 x 3 matrix");
+    static_assert(N == 3, "Expecting 3 x 3 matrix");
+    error_code_ = vn_.ReadRegister(&rotation_);
+    if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+    for (int8_t m = 0; m < M; m++) {
+      for (int8_t n = 0; n < N; n++) {
+        c[m][n] = rotation_.payload.c[m][n];
+      }
+    }
+    return true;
+  }
   bool SetMagFilter(const FilterMode mode, const uint16_t window);
   bool GetMagFilter(FilterMode *mode, uint16_t *window);
   bool SetAccelFilter(const FilterMode mode, const uint16_t window);
@@ -104,13 +126,13 @@ class Vn100 {
 
   /* Data */
   inline float yaw_rad() const {
-    return deg2rad(attitude_.payload.yaw);
+    return attitude_.payload.yaw * DEG2RAD_;
   }
   inline float pitch_rad() const {
-    return deg2rad(attitude_.payload.pitch);
+    return attitude_.payload.pitch * DEG2RAD_;
   }
   inline float roll_rad() const {
-    return deg2rad(attitude_.payload.roll);
+    return attitude_.payload.roll * DEG2RAD_;
   }
   inline float accel_x_mps2() const {
     return attitude_.payload.accel_x;
@@ -121,13 +143,6 @@ class Vn100 {
   inline float accel_z_mps2() const {
     return attitude_.payload.accel_z;
   }
-  inline Eigen::Vector3f accel_mps2() const {
-    Eigen::Vector3f accel;
-    accel(0) = attitude_.payload.accel_x;
-    accel(1) = attitude_.payload.accel_y;
-    accel(2) = attitude_.payload.accel_z;
-    return accel;
-  }
   inline float gyro_x_radps() const {
     return attitude_.payload.gyro_x;
   }
@@ -136,13 +151,6 @@ class Vn100 {
   }
   inline float gyro_z_radps() const {
     return attitude_.payload.gyro_z;
-  }
-  inline Eigen::Vector3f gyro_radps() const {
-    Eigen::Vector3f gyro;
-    gyro(0) = attitude_.payload.gyro_x;
-    gyro(1) = attitude_.payload.gyro_y;
-    gyro(2) = attitude_.payload.gyro_z;
-    return gyro;
   }
   inline float mag_x_ut() const {
     return attitude_.payload.mag_x * 100.0f;
@@ -153,13 +161,6 @@ class Vn100 {
   inline float mag_z_ut() const {
     return attitude_.payload.mag_z * 100.0f;
   }
-  inline Eigen::Vector3f mag_ut() const {
-    Eigen::Vector3f mag;
-    mag(0) = attitude_.payload.mag_x * 100.0f;
-    mag(1) = attitude_.payload.mag_y * 100.0f;
-    mag(2) = attitude_.payload.mag_z * 100.0f;
-    return mag;
-  }
   inline float uncomp_accel_x_mps2() const {
     return imu_.payload.accel_x;
   }
@@ -168,13 +169,6 @@ class Vn100 {
   }
   inline float uncomp_accel_z_mps2() const {
     return imu_.payload.accel_z;
-  }
-  inline Eigen::Vector3f uncomp_accel_mps2() const {
-    Eigen::Vector3f accel;
-    accel(0) = imu_.payload.accel_x;
-    accel(1) = imu_.payload.accel_y;
-    accel(2) = imu_.payload.accel_z;
-    return accel;
   }
   inline float uncomp_gyro_x_radps() const {
     return imu_.payload.gyro_x;
@@ -185,13 +179,6 @@ class Vn100 {
   inline float uncomp_gyro_z_radps() const {
     return imu_.payload.gyro_z;
   }
-  inline Eigen::Vector3f uncomp_gyro_radps() const {
-    Eigen::Vector3f gyro;
-    gyro(0) = imu_.payload.gyro_x;
-    gyro(1) = imu_.payload.gyro_y;
-    gyro(2) = imu_.payload.gyro_z;
-    return gyro;
-  }
   inline float uncomp_mag_x_ut() const {
     return imu_.payload.mag_x * 100.0f;
   }
@@ -200,13 +187,6 @@ class Vn100 {
   }
   inline float uncomp_mag_z_ut() const {
     return imu_.payload.mag_z * 100.0f;
-  }
-  inline Eigen::Vector3f uncomp_mag_ut() const {
-    Eigen::Vector3f mag;
-    mag(0) = imu_.payload.mag_x * 100.0f;
-    mag(1) = imu_.payload.mag_y * 100.0f;
-    mag(2) = imu_.payload.mag_z * 100.0f;
-    return mag;
   }
   inline float die_temp_c() const {
     return imu_.payload.temp;
@@ -220,6 +200,9 @@ class Vn100 {
   VectorNav vn_;
   /* Expected product name */
   static constexpr char PROD_NAME_[] = {"VN-100"};
+  /* Data */
+  static constexpr float DEG2RAD_ = 3.14159265358979323846264338327950288f /
+                                    180.0f;
   /* Registers */
   VectorNav::ErrorCode error_code_;
   VnModelNumber model_num_;

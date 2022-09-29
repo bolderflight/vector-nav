@@ -41,11 +41,11 @@ int main() {
   while (1) {
     /* Read sensor and print values */
     if (vn.Read()) {
-      Serial.print(bfs::rad2deg(vn.yaw_rad()));
+      Serial.print(vn.yaw_rad() * 180 / 3.14159);
       Serial.print("\t");
-      Serial.print(bfs::rad2deg(vn.pitch_rad()));
+      Serial.print(vn.pitch_rad() * 180 / 3.14159);
       Serial.print("\t");
-      Serial.println(bfs::rad2deg(vn.roll_rad()));
+      Serial.println(vn.roll_rad() * 180 / 3.14159);
     }
     delay(50);
   }

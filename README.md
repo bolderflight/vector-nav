@@ -1,9 +1,9 @@
-[![Pipeline](https://gitlab.com/bolderflight/software/vector_nav/badges/main/pipeline.svg)](https://gitlab.com/bolderflight/software/vector_nav/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ![Bolder Flight Systems Logo](img/logo-words_75.png) &nbsp; &nbsp; ![Arduino Logo](img/arduino_logo_75.png)
 
 # VectorNav
-Driver for VectorNav Inertial Measurement Unit (IMU) and Inertial Navigation System (INS) sensors. This library is compatible with Arduino ARM and with CMake build systems.
+Driver for VectorNav Inertial Measurement Unit (IMU) and Inertial Navigation System (INS) sensors. This library is compatible with Arduino and with CMake build systems.
    * [License](LICENSE.md)
    * [Changelog](CHANGELOG.md)
    * [Contributing guide](CONTRIBUTING.md)
@@ -14,13 +14,13 @@ VectorNav produces a line of high accuracy IMU and INS sensors. The MEMS sensors
 # Installation
 
 ## Arduino
-Simply clone or download and extract the zipped library into your Arduino/libraries folder. In addition to this library, the [Bolder Flight Systems Units library](https://github.com/bolderflight/units) and [Bolder Flight Systems Eigen library](https://github.com/bolderflight/eigen) must be installed. The library is added as:
+Simply clone or download and extract the zipped library into your Arduino/libraries folder. The library is added as:
 
 ```C++
 #include "vector_nav.h"
 ```
 
-An example is located in *examples/arduino/spi_example/spi_example.ino*. This library is tested with Teensy 3.x, 4.x, and LC devices and is expected to work with other Arduino ARM devices. It is **not** expected to work with AVR devices.
+An example is located in *examples/arduino/spi_example/spi_example.ino*. This library is tested with Teensy 3.x, 4.x, and LC devices and is expected to work with other Arduino devices. Note that this library won't work with Arduino Uno and possibly other AVR processors, since Arduino Uno treats a *double* as 4 bytes and we really are expecting an 8 byte *double* to handle latitude and longitude data. If you have a recommended fix, please email me or issue a pull request.
 
 ## CMake
 CMake is used to build this library, which is exported as a library target called *vector_nav*. The header is added as:
@@ -44,10 +44,11 @@ This will build the library and an example executables called *spi_example*. The
    * MKL26Z64
    * IMXRT1062_T40
    * IMXRT1062_T41
+   * IMXRT1062_MMOD
 
 These are known to work with the same packages used in Teensy products. Also switching packages is known to work well, as long as it's only a package change.
 
-The *spi_example* target creates an executable for communicating with the sensor using SPI communication. This target also has a *_hex* for creating the hex file and an *_upload* for using the [Teensy CLI Uploader](https://www.pjrc.com/teensy/loader_cli.html) to flash the Teensy. Please note that the CMake build tooling is expected to be run under Linux or WSL, instructions for setting up your build environment can be found in our [build-tools repo](https://github.com/bolderflight/build-tools). 
+The *spi_example* target creates an executable for communicating with the sensor using SPI communication. This target also has a *_hex* for creating the hex file and an *_upload* for using the [Teensy CLI Uploader](https://www.pjrc.com/teensy/loader_cli.html) to flash the Teensy. Instructions for setting up your build environment can be found in our [build-tools repo](https://github.com/bolderflight/build-tools). 
 
 # Namespace
 This library is within the namespace *bfs*.
@@ -190,7 +191,7 @@ bool status = vn.EnableDrdyInt(Vn100::AHRS, 7);
 
 **bool DisableDrdyInt()** Disables the data ready interrupt.
 
-**bool ApplyRotation(const Eigen::Matrix3f &c)** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
+**bool ApplyRotation(const float (&C)[M][N])** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
 
 ```
 Xu = c * Xb
@@ -204,20 +205,20 @@ Where *Xu* is the output, *c* is the rotation matrix, and *Xb* are the measureme
 *       1 0 0
 *       0 0 1
 */
-Eigen::Matrix3f c = Eigen::Matrix3f::Zero();
-c(0, 1) = 1.0f;
-c(1, 0) = 1.0f;
-c(2, 2) = 1.0f;
+float c[3][3];
+c[0][1] = 1.0f;
+c[1][0] = 1.0f;
+c[2][2] = 1.0f;
 bool status = vn.ApplyRotation(c);
 ```
 
 **Note:** The VectorNav needs to write this rotation to non-volatile memory and perform a reset in order for it to be applied. These operations are performed within this method, so it takes a few seconds to complete.
 
-**bool GetRotation(Eigen::Matrix3f &ast;c)** Retrieves the current rotation matrix from the VN-100.
+**bool GetRotation(float (&C)[M][N])** Retrieves the current rotation matrix from the VN-100.
 
 ```C++
-Eigen::Matrix3f c;
-bool status = vn.GetRotation(&c);
+float c[3][3];
+bool status = vn.GetRotation(c);
 ```
 
 **Get / Set Filter** The following methods enable setting and getting digital low pass filters for the VectorNav sensors. Each filter can be set to filter the uncompensated, compensated, or both sets of data using the *FilterMode* enum.
@@ -280,15 +281,11 @@ if (vn.Read()) {
 
 **float accel_z_mps2()** Returns the compensated z accelerometer, m/s/s.
 
-**Eigen::Vector3f accel_mps2()** Returns the compensated accelerometer as a vector, m/s/s.
-
 **float gyro_x_radps()** Returns the compensated x gyro, rad/s.
 
 **float gyro_y_radps()** Returns the compensated y gyro, rad/s.
 
 **float gyro_z_radps()** Returns the compensated z gyro, rad/s.
-
-**Eigen::Vector3f gyro_radps()** Returns the compensated gyro as a vector, rad/s.
 
 **float mag_x_ut()** Returns the compensated x magnetometer, uT.
 
@@ -296,15 +293,11 @@ if (vn.Read()) {
 
 **float mag_z_ut()** Returns the compensated z magnetometer, uT.
 
-**Eigen::Vector3f mag_ut()** Returns the compensated magnetometer as a vector, uT.
-
 **float uncomp_accel_x_mps2()** Returns the uncompensated x accelerometer, m/s/s.
 
 **float uncomp_accel_y_mps2()** Returns the uncompensated y accelerometer, m/s/s.
 
 **float uncomp_accel_z_mps2()** Returns the uncompensated z accelerometer, m/s/s.
-
-**Eigen::Vector3f uncomp_accel_mps2()** Returns the uncompensated accelerometer as a vector, m/s/s.
 
 **float uncomp_gyro_x_radps()** Returns the uncompensated x gyro, rad/s.
 
@@ -312,15 +305,11 @@ if (vn.Read()) {
 
 **float uncomp_gyro_z_radps()** Returns the uncompensated z gyro, rad/s.
 
-**Eigen::Vector3f uncomp_gyro_radps()** Returns the uncompensated gyro as a vector, rad/s.
-
 **float uncomp_mag_x_ut()** Returns the uncompensated x magnetometer, uT.
 
 **float uncomp_mag_y_ut()** Returns the uncompensated y magnetometer, uT.
 
 **float uncomp_mag_z_ut()** Returns the uncompensated z magnetometer, uT.
-
-**Eigen::Vector3f uncomp_mag_ut()** Returns the uncompensated magnetometer as a vector, uT.
 
 **float die_temp_c()** Returns the sensor die temperature, C.
 
@@ -399,7 +388,7 @@ bool status = vn.EnableDrdyInt(Vn200::INS, 7);
 
 **bool DisableExternalGnss()** Disables the external GNSS receiver.
 
-**bool ApplyRotation(const Eigen::Matrix3f &c)** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
+**bool ApplyRotation(const float (&C)[M][N])** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
 
 ```
 Xu = c * Xb
@@ -413,35 +402,35 @@ Where *Xu* is the output, *c* is the rotation matrix, and *Xb* are the measureme
 *       1 0 0
 *       0 0 1
 */
-Eigen::Matrix3f c = Eigen::Matrix3f::Zero();
-c(0, 1) = 1.0f;
-c(1, 0) = 1.0f;
-c(2, 2) = 1.0f;
+float c[3][3];
+c[0][1] = 1.0f;
+c[1][0] = 1.0f;
+c[2][2] = 1.0f;
 bool status = vn.ApplyRotation(c);
 ```
 
 **Note:** The VectorNav needs to write this rotation to non-volatile memory and perform a reset in order for it to be applied. These operations are performed within this method, so it takes a few seconds to complete.
 
-**bool GetRotation(Eigen::Matrix3f &ast;c)** Retrieves the current rotation matrix from the VN-200.
+**bool GetRotation(float (&C)[M][N])** Retrieves the current rotation matrix from the VN-100.
 
 ```C++
-Eigen::Matrix3f c;
-bool status = vn.GetRotation(&c);
+float c[3][3];
+bool status = vn.GetRotation(c);
 ```
 
-**bool SetAntennaOffset(const Eigen::Vector3f &b)** Sets the offset from the VN-200 to the antenna. Units are in meters and given in the VN-200 reference frame.
+**bool SetAntennaOffset(const float (&b)[M])** Sets the offset from the VN-200 to the antenna. Units are in meters and given in the VN-200 reference frame.
 
 ```C++
 /* Antenna 2 meters in front on and above the VN-200 */
-Eigen::Vector3f b = {2.0, 0, -2.0};
+float b[3] = {2.0, 0, -2.0};
 bool status = vn.SetAntennaOffset(b);
 ```
 
-**bool GetAntennaOffset(Eigen::Vector3f &ast;b)** Retrieves the current antenna offset from the VN-200.
+**bool GetAntennaOffset(float (&b)[M])** Retrieves the current antenna offset from the VN-200.
 
 ```C++
-Eigen::Vector3f b;
-bool status = vn.GetAntennaOffset(&b);
+float b[3];
+bool status = vn.GetAntennaOffset(b);
 ```
 
 **Get / Set Filter** The following methods enable setting and getting digital low pass filters for the VectorNav sensors. Each filter can be set to filter the uncompensated, compensated, or both sets of data using the *FilterMode* enum.
@@ -523,15 +512,11 @@ if (vn.Read()) {
 
 **double ins_alt_m()** Returns the altitude above the WGS-84 ellipsoid from the INS, m.
 
-**Eigen::Vector3d ins_lla_rad_m()** Returns the INS latitude, longitude, and altitude as a vector.
-
 **float ins_north_vel_mps()** Returns the INS velocity in the north direction, m/s.
 
 **float ins_east_vel_mps()** Returns the INS velocity in the east direction, m/s.
 
 **float ins_down_vel_mps()** Returns the INS velocity in the down direction, m/s.
-
-**Eigen::Vector3f ins_ned_vel_mps()** Returns the INS north, east, and down velocity as a vector, m/s.
 
 **float ins_att_uncertainty_rad()** Returns the INS attitude estimation uncertainty, rad.
 
@@ -561,15 +546,11 @@ if (vn.Read()) {
 
 **double gnss_alt_m()** Returns the GNSS altitude above the WGS-84 ellipsoid, m.
 
-**Eigen::Vector3d gnss_lla_rad_m()** Returns the latitude, longitude, and altitude as a vector.
-
 **float gnss_north_vel_mps()** Returns the GNSS velocity in the north direction, m/s.
 
 **float gnss_east_vel_mps()** Returns the GNSS velocity in the east direction, m/s.
 
 **float gnss_down_vel_mps()** Returns the GNSS velocity in the down direction, m/s.
-
-**Eigen::Vector3f gnss_ned_vel_mps()** Returns the GNSS north, east, and down velocity as a vector, m/s.
 
 **float gnss_north_acc_m()** Returns the estimated GNSS position accuracy in the north direction, m.
 
@@ -593,15 +574,11 @@ if (vn.Read()) {
 
 **float accel_z_mps2()** Returns the compensated z accelerometer, m/s/s.
 
-**Eigen::Vector3f accel_mps2()** Returns the compensated accelerometer as a vector, m/s/s.
-
 **float gyro_x_radps()** Returns the compensated x gyro, rad/s.
 
 **float gyro_y_radps()** Returns the compensated y gyro, rad/s.
 
 **float gyro_z_radps()** Returns the compensated z gyro, rad/s.
-
-**Eigen::Vector3f gyro_radps()** Returns the compensated gyro as a vector, rad/s.
 
 **float mag_x_ut()** Returns the compensated x magnetometer, uT.
 
@@ -609,15 +586,11 @@ if (vn.Read()) {
 
 **float mag_z_ut()** Returns the compensated z magnetometer, uT.
 
-**Eigen::Vector3f mag_ut()** Returns the compensated magnetometer as a vector, uT.
-
 **float uncomp_accel_x_mps2()** Returns the uncompensated x accelerometer, m/s/s.
 
 **float uncomp_accel_y_mps2()** Returns the uncompensated y accelerometer, m/s/s.
 
 **float uncomp_accel_z_mps2()** Returns the uncompensated z accelerometer, m/s/s.
-
-**Eigen::Vector3f uncomp_accel_mps2()** Returns the uncompensated accelerometer as a vector, m/s/s.
 
 **float uncomp_gyro_x_radps()** Returns the uncompensated x gyro, rad/s.
 
@@ -625,15 +598,11 @@ if (vn.Read()) {
 
 **float uncomp_gyro_z_radps()** Returns the uncompensated z gyro, rad/s.
 
-**Eigen::Vector3f uncomp_gyro_radps()** Returns the uncompensated gyro as a vector, rad/s.
-
 **float uncomp_mag_x_ut()** Returns the uncompensated x magnetometer, uT.
 
 **float uncomp_mag_y_ut()** Returns the uncompensated y magnetometer, uT.
 
 **float uncomp_mag_z_ut()** Returns the uncompensated z magnetometer, uT.
-
-**Eigen::Vector3f uncomp_mag_ut()** Returns the uncompensated magnetometer as a vector, uT.
 
 **float die_temp_c()** Returns the sensor die temperature, C.
 
@@ -701,7 +670,7 @@ bool status = vn.EnableDrdyInt(Vn300::INS, 7);
 
 **bool DisableDrdyInt()** Disables the data ready interrupt.
 
-**bool ApplyRotation(const Eigen::Matrix3f &c)** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
+**bool ApplyRotation(const float (&C)[M][N])** Applies a rotation. This is useful if the sensor is mounted in a vehicle such that the sensor axes no longer align with the vehicle axes. Rotates the sensor and filter outputs. Outputs are defined as:
 
 ```
 Xu = c * Xb
@@ -715,51 +684,51 @@ Where *Xu* is the output, *c* is the rotation matrix, and *Xb* are the measureme
 *       1 0 0
 *       0 0 1
 */
-Eigen::Matrix3f c = Eigen::Matrix3f::Zero();
-c(0, 1) = 1.0f;
-c(1, 0) = 1.0f;
-c(2, 2) = 1.0f;
+float c[3][3];
+c[0][1] = 1.0f;
+c[1][0] = 1.0f;
+c[2][2] = 1.0f;
 bool status = vn.ApplyRotation(c);
 ```
 
 **Note:** The VectorNav needs to write this rotation to non-volatile memory and perform a reset in order for it to be applied. These operations are performed within this method, so it takes a few seconds to complete.
 
-**bool GetRotation(Eigen::Matrix3f &ast;c)** Retrieves the current rotation matrix from the VN-300.
+**bool GetRotation(float (&C)[M][N])** Retrieves the current rotation matrix from the VN-100.
 
 ```C++
-Eigen::Matrix3f c;
-bool status = vn.GetRotation(&c);
+float c[3][3];
+bool status = vn.GetRotation(c);
 ```
 
-**bool SetAntennaOffset(const Eigen::Vector3f &b)** Sets the offset from the VN-300 to the antenna. Units are in meters and given in the VN-300 reference frame.
+**bool SetAntennaOffset(const float (&b)[M])** Sets the offset from the VN-200 to the antenna. Units are in meters and given in the VN-200 reference frame.
 
 ```C++
-/* Antenna 2 meters in front on and above the VN-300 */
-Eigen::Vector3f b = {2.0, 0, -2.0};
+/* Antenna 2 meters in front on and above the VN-200 */
+float b[3] = {2.0, 0, -2.0};
 bool status = vn.SetAntennaOffset(b);
 ```
 
-**bool GetAntennaOffset(Eigen::Vector3f &ast;b)** Retrieves the current antenna offset from the VN-300.
+**bool GetAntennaOffset(float (&b)[M])** Retrieves the current antenna offset from the VN-200.
 
 ```C++
-Eigen::Vector3f b;
-bool status = vn.GetAntennaOffset(&b);
+float b[3];
+bool status = vn.GetAntennaOffset(b);
 ```
 
-**bool SetCompassBaseline(const Eigen::Vector3f &pos, const Eigen::Vector3f &uncert)** Sets the position of the second GNSS antenna relative to the first GNSS antenna in the VN-300 reference frame, meters. Accuracy of the GNSS heading is related to the baseline distance. In addition to the baseline position, uncertainty in each direction must also be provided, meters.
+**bool SetCompassBaseline(const float (&pos)[M][N], const float (&uncert)[M][N])** Sets the position of the second GNSS antenna relative to the first GNSS antenna in the VN-300 reference frame, meters. Accuracy of the GNSS heading is related to the baseline distance. In addition to the baseline position, uncertainty in each direction must also be provided, meters.
 
 ```C++
 /* Second antenna is 1 meter in front of first antenna with an uncertainty of 1 cm */
-Eigen::Vector3f b = {1.0, 0, 0.0};
-Eigen::Vector3f c = {0.01, 0, 0.0};
+float b[3] = {1.0, 0, 0.0};
+float c[3] = {0.01, 0, 0.0};
 bool status = vn.SetCompassBaseline(b, c);
 ```
 
-**bool GetCompassBaseline(Eigen::Vector3f &ast;pos, Eigen::Vector3f &ast;uncert)** Retrieves the current compass baseline from the VN-300.
+**bool GetCompassBaseline(float (&pos)[M][N], float (&uncert)[M][N])** Retrieves the current compass baseline from the VN-300.
 
 ```C++
-Eigen::Vector3f b, c;
-bool status = vn.GetCompassBaseline(&b, &c);
+float b[3], c[3];
+bool status = vn.GetCompassBaseline(b, c);
 ```
 
 **Get / Set Filter** The following methods enable setting and getting digital low pass filters for the VectorNav sensors. Each filter can be set to filter the uncompensated, compensated, or both sets of data using the *FilterMode* enum.
@@ -841,15 +810,11 @@ if (vn.Read()) {
 
 **double ins_alt_m()** Returns the altitude above the WGS-84 ellipsoid from the INS, m.
 
-**Eigen::Vector3d ins_lla_rad_m()** Returns the INS latitude, longitude, and altitude as a vector.
-
 **float ins_north_vel_mps()** Returns the INS velocity in the north direction, m/s.
 
 **float ins_east_vel_mps()** Returns the INS velocity in the east direction, m/s.
 
 **float ins_down_vel_mps()** Returns the INS velocity in the down direction, m/s.
-
-**Eigen::Vector3f ins_ned_vel_mps()** Returns the INS north, east, and down velocity as a vector, m/s.
 
 **float ins_att_uncertainty_rad()** Returns the INS attitude estimation uncertainty, rad.
 
@@ -879,15 +844,11 @@ if (vn.Read()) {
 
 **double gnss_alt_m()** Returns the GNSS altitude above the WGS-84 ellipsoid, m.
 
-**Eigen::Vector3d gnss_lla_rad_m()** Returns the latitude, longitude, and altitude as a vector.
-
 **float gnss_north_vel_mps()** Returns the GNSS velocity in the north direction, m/s.
 
 **float gnss_east_vel_mps()** Returns the GNSS velocity in the east direction, m/s.
 
 **float gnss_down_vel_mps()** Returns the GNSS velocity in the down direction, m/s.
-
-**Eigen::Vector3f gnss_ned_vel_mps()** Returns the GNSS north, east, and down velocity as a vector, m/s.
 
 **float gnss_north_acc_m()** Returns the estimated GNSS position accuracy in the north direction, m.
 
@@ -911,15 +872,11 @@ if (vn.Read()) {
 
 **float accel_z_mps2()** Returns the compensated z accelerometer, m/s/s.
 
-**Eigen::Vector3f accel_mps2()** Returns the compensated accelerometer as a vector, m/s/s.
-
 **float gyro_x_radps()** Returns the compensated x gyro, rad/s.
 
 **float gyro_y_radps()** Returns the compensated y gyro, rad/s.
 
 **float gyro_z_radps()** Returns the compensated z gyro, rad/s.
-
-**Eigen::Vector3f gyro_radps()** Returns the compensated gyro as a vector, rad/s.
 
 **float mag_x_ut()** Returns the compensated x magnetometer, uT.
 
@@ -927,15 +884,11 @@ if (vn.Read()) {
 
 **float mag_z_ut()** Returns the compensated z magnetometer, uT.
 
-**Eigen::Vector3f mag_ut()** Returns the compensated magnetometer as a vector, uT.
-
 **float uncomp_accel_x_mps2()** Returns the uncompensated x accelerometer, m/s/s.
 
 **float uncomp_accel_y_mps2()** Returns the uncompensated y accelerometer, m/s/s.
 
 **float uncomp_accel_z_mps2()** Returns the uncompensated z accelerometer, m/s/s.
-
-**Eigen::Vector3f uncomp_accel_mps2()** Returns the uncompensated accelerometer as a vector, m/s/s.
 
 **float uncomp_gyro_x_radps()** Returns the uncompensated x gyro, rad/s.
 
@@ -943,15 +896,11 @@ if (vn.Read()) {
 
 **float uncomp_gyro_z_radps()** Returns the uncompensated z gyro, rad/s.
 
-**Eigen::Vector3f uncomp_gyro_radps()** Returns the uncompensated gyro as a vector, rad/s.
-
 **float uncomp_mag_x_ut()** Returns the uncompensated x magnetometer, uT.
 
 **float uncomp_mag_y_ut()** Returns the uncompensated y magnetometer, uT.
 
 **float uncomp_mag_z_ut()** Returns the uncompensated z magnetometer, uT.
-
-**Eigen::Vector3f uncomp_mag_ut()** Returns the uncompensated magnetometer as a vector, uT.
 
 **float die_temp_c()** Returns the sensor die temperature, C.
 

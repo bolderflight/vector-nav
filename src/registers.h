@@ -28,8 +28,10 @@
 
 #if defined(ARDUINO)
 #include <Arduino.h>
-#endif
+#pragma pack(4)
+#else
 #include <cstdint>
+#endif
 
 namespace bfs {
 

@@ -30,11 +30,8 @@
 #include "core/core.h"
 #endif
 #include "vn200.h"  // NOLINT
-#include "eigen.h"  // NOLINT
-#include "Eigen/Dense"
 #include "vector_nav.h"  // NOLINT
 #include "registers.h"  // NOLINT
-#include "units.h"  // NOLINT
 
 namespace bfs {
 
@@ -50,7 +47,7 @@ bool Vn200::Begin() {
   }
   error_code_ = vn_.ReadRegister(&model_num_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  for (std::size_t i = 0; i < sizeof(PROD_NAME_) - 1; i++) {
+  for (size_t i = 0; i < sizeof(PROD_NAME_) - 1; i++) {
     if (model_num_.payload.product_name[i] != PROD_NAME_[i]) {
       error_code_ = VectorNav::ERROR_WRONG_MODEL;
       return false;
@@ -94,54 +91,6 @@ bool Vn200::DisableExternalGnss() {
   gnss_config_.payload.pps_source = 0;
   error_code_ = vn_.WriteRegister(gnss_config_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
-}
-
-bool Vn200::ApplyRotation(const Eigen::Matrix3f &c) {
-  for (std::size_t m = 0; m < 3; m++) {
-    for (std::size_t n = 0; n < 3; n++) {
-      rotation_.payload.c[m][n] = c(m, n);
-    }
-  }
-  error_code_ = vn_.WriteRegister(rotation_);
-  vn_.WriteSettings();
-  vn_.Reset();
-  return (error_code_ == VectorNav::ERROR_SUCCESS);
-}
-
-bool Vn200::GetRotation(Eigen::Matrix3f *c) {
-  if (!c) {
-    error_code_ = VectorNav::ERROR_NULL_PTR;
-    return false;
-  }
-  error_code_ = vn_.ReadRegister(&rotation_);
-  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  for (std::size_t m = 0; m < 3; m++) {
-    for (std::size_t n = 0; n < 3; n++) {
-      (*c)(m, n) = rotation_.payload.c[m][n];
-    }
-  }
-  return true;
-}
-
-bool Vn200::SetAntennaOffset(const Eigen::Vector3f &b) {
-  antenna_.payload.position_x = b(0);
-  antenna_.payload.position_y = b(1);
-  antenna_.payload.position_z = b(2);
-  error_code_ = vn_.WriteRegister(antenna_);
-  return (error_code_ == VectorNav::ERROR_SUCCESS);
-}
-
-bool Vn200::GetAntennaOffset(Eigen::Vector3f *b) {
-  if (!b) {
-    error_code_ = VectorNav::ERROR_NULL_PTR;
-    return false;
-  }
-  error_code_ = vn_.ReadRegister(&antenna_);
-  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  (*b)(0) = antenna_.payload.position_x;
-  (*b)(1) = antenna_.payload.position_y;
-  (*b)(2) = antenna_.payload.position_z;
-  return true;
 }
 
 bool Vn200::SetMagFilter(const FilterMode mode, const uint16_t window) {

@@ -30,11 +30,8 @@
 #include "core/core.h"
 #endif
 #include "vn100.h"  // NOLINT
-#include "eigen.h"  // NOLINT
-#include "Eigen/Dense"
 #include "vector_nav.h"  // NOLINT
 #include "registers.h"  // NOLINT
-#include "units.h"  // NOLINT
 
 namespace bfs {
 
@@ -50,7 +47,7 @@ bool Vn100::Begin() {
   }
   error_code_ = vn_.ReadRegister(&model_num_);
   if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  for (std::size_t i = 0; i < sizeof(PROD_NAME_) - 1; i++) {
+  for (size_t i = 0; i < sizeof(PROD_NAME_) - 1; i++) {
     if (model_num_.payload.product_name[i] != PROD_NAME_[i]) {
       error_code_ = VectorNav::ERROR_WRONG_MODEL;
       return false;
@@ -80,33 +77,6 @@ bool Vn100::DisableDrdyInt() {
   sync_cntrl_.payload.sync_out_mode = 0;
   error_code_ = vn_.WriteRegister(sync_cntrl_);
   return (error_code_ == VectorNav::ERROR_SUCCESS);
-}
-
-bool Vn100::ApplyRotation(const Eigen::Matrix3f &c) {
-  for (std::size_t m = 0; m < 3; m++) {
-    for (std::size_t n = 0; n < 3; n++) {
-      rotation_.payload.c[m][n] = c(m, n);
-    }
-  }
-  error_code_ = vn_.WriteRegister(rotation_);
-  vn_.WriteSettings();
-  vn_.Reset();
-  return (error_code_ == VectorNav::ERROR_SUCCESS);
-}
-
-bool Vn100::GetRotation(Eigen::Matrix3f *c) {
-  if (!c) {
-    error_code_ = VectorNav::ERROR_NULL_PTR;
-    return false;
-  }
-  error_code_ = vn_.ReadRegister(&rotation_);
-  if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
-  for (std::size_t m = 0; m < 3; m++) {
-    for (std::size_t n = 0; n < 3; n++) {
-      (*c)(m, n) = rotation_.payload.c[m][n];
-    }
-  }
-  return true;
 }
 
 bool Vn100::SetMagFilter(const FilterMode mode, const uint16_t window) {

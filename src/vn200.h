@@ -30,15 +30,12 @@
 #include <Arduino.h>
 #include <SPI.h>
 #else
-#include "core/core.h"
-#endif
 #include <cstddef>
 #include <cstdint>
-#include "eigen.h"  // NOLINT
-#include "Eigen/Dense"
+#include "core/core.h"
+#endif
 #include "vn.h"  // NOLINT
 #include "registers.h"  // NOLINT
-#include "units.h"  // NOLINT
 
 namespace bfs {
 
@@ -83,10 +80,52 @@ class Vn200 {
   bool DisableDrdyInt();
   bool EnableExternalGnss(const PpsSource pps);
   bool DisableExternalGnss();
-  bool ApplyRotation(const Eigen::Matrix3f &c);
-  bool GetRotation(Eigen::Matrix3f *c);
-  bool SetAntennaOffset(const Eigen::Vector3f &b);
-  bool GetAntennaOffset(Eigen::Vector3f *b);
+  template<size_t M, size_t N>
+  bool ApplyRotation(const float (&c)[M][N]) {
+    static_assert(M == 3, "Expecting 3 x 3 matrix");
+    static_assert(N == 3, "Expecting 3 x 3 matrix");
+    for (int8_t m = 0; m < M; m++) {
+      for (int8_t n = 0; n < N; n++) {
+        rotation_.payload.c[m][n] = c[m][n];
+      }
+    }
+    error_code_ = vn_.WriteRegister(rotation_);
+    vn_.WriteSettings();
+    vn_.Reset();
+    return (error_code_ == VectorNav::ERROR_SUCCESS);
+  }
+  template<size_t M, size_t N>
+  bool GetRotation(float (&c)[M][N]) {
+    static_assert(M == 3, "Expecting 3 x 3 matrix");
+    static_assert(N == 3, "Expecting 3 x 3 matrix");
+    error_code_ = vn_.ReadRegister(&rotation_);
+    if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+    for (int8_t m = 0; m < M; m++) {
+      for (int8_t n = 0; n < N; n++) {
+        c[m][n] = rotation_.payload.c[m][n];
+      }
+    }
+    return true;
+  }
+  template<size_t M>
+  bool SetAntennaOffset(const float (&b)[M]) {
+    static_assert(M == 3, "Expecting 3 x 1 vector");
+    antenna_.payload.position_x = b[0];
+    antenna_.payload.position_y = b[1];
+    antenna_.payload.position_z = b[2];
+    error_code_ = vn_.WriteRegister(antenna_);
+    return (error_code_ == VectorNav::ERROR_SUCCESS);
+  }
+  template<size_t M>
+  bool GetAntennaOffset(float (&b)[M]) {
+    static_assert(M == 3, "Expecting 3 x 1 vector");
+    error_code_ = vn_.ReadRegister(&antenna_);
+    if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
+    b[0] = antenna_.payload.position_x;
+    b[1] = antenna_.payload.position_y;
+    b[2] = antenna_.payload.position_z;
+    return true;
+  }
   bool SetMagFilter(const FilterMode mode, const uint16_t window);
   bool GetMagFilter(FilterMode *mode, uint16_t *window);
   bool SetAccelFilter(const FilterMode mode, const uint16_t window);
@@ -152,29 +191,22 @@ class Vn200 {
     return ins_.payload.week;
   }
   inline float yaw_rad() const {
-    return deg2rad(ins_.payload.yaw);
+    return ins_.payload.yaw * DEG2RADf_;
   }
   inline float pitch_rad() const {
-    return deg2rad(ins_.payload.pitch);
+    return ins_.payload.pitch * DEG2RADf_;
   }
   inline float roll_rad() const {
-    return deg2rad(ins_.payload.roll);
+    return ins_.payload.roll * DEG2RADf_;
   }
   inline double ins_lat_rad() const {
-    return deg2rad(ins_.payload.latitude);
+    return ins_.payload.latitude * DEG2RADl_;
   }
   inline double ins_lon_rad() const {
-    return deg2rad(ins_.payload.longitude);
+    return ins_.payload.longitude * DEG2RADl_;
   }
   inline double ins_alt_m() const {
     return ins_.payload.altitude;
-  }
-  inline Eigen::Vector3d ins_lla_rad_m() const {
-    Eigen::Vector3d lla;
-    lla(0) = deg2rad(ins_.payload.latitude);
-    lla(1) = deg2rad(ins_.payload.longitude);
-    lla(2) = ins_.payload.altitude;
-    return lla;
   }
   inline float ins_north_vel_mps() const {
     return ins_.payload.ned_vel_x;
@@ -185,15 +217,8 @@ class Vn200 {
   inline float ins_down_vel_mps() const {
     return ins_.payload.ned_vel_z;
   }
-  inline Eigen::Vector3f ins_ned_vel_mps() const {
-    Eigen::Vector3f ned_vel;
-    ned_vel(0) = ins_.payload.ned_vel_x;
-    ned_vel(1) = ins_.payload.ned_vel_y;
-    ned_vel(2) = ins_.payload.ned_vel_z;
-    return ned_vel;
-  }
   inline float ins_att_uncertainty_rad() const {
-    return deg2rad(ins_.payload.att_uncertainty);
+    return ins_.payload.att_uncertainty * DEG2RADf_;
   }
   inline float ins_pos_uncertainty_m() const {
     return ins_.payload.pos_uncertainty;
@@ -214,20 +239,13 @@ class Vn200 {
     return gnss_.payload.num_sats;
   }
   inline double gnss_lat_rad() const {
-    return deg2rad(gnss_.payload.latitude);
+    return gnss_.payload.latitude * DEG2RADl_;
   }
   inline double gnss_lon_rad() const {
-    return deg2rad(gnss_.payload.longitude);
+    return gnss_.payload.longitude * DEG2RADl_;
   }
   inline double gnss_alt_m() const {
     return gnss_.payload.altitude;
-  }
-  inline Eigen::Vector3d gnss_lla_rad_m() const {
-    Eigen::Vector3d lla;
-    lla(0) = deg2rad(gnss_.payload.latitude);
-    lla(1) = deg2rad(gnss_.payload.longitude);
-    lla(2) = gnss_.payload.altitude;
-    return lla;
   }
   inline float gnss_north_vel_mps() const {
     return gnss_.payload.ned_vel_x;
@@ -237,13 +255,6 @@ class Vn200 {
   }
   inline float gnss_down_vel_mps() const {
     return gnss_.payload.ned_vel_z;
-  }
-  inline Eigen::Vector3f gnss_ned_vel_mps() const {
-    Eigen::Vector3f ned_vel;
-    ned_vel(0) = gnss_.payload.ned_vel_x;
-    ned_vel(1) = gnss_.payload.ned_vel_y;
-    ned_vel(2) = gnss_.payload.ned_vel_z;
-    return ned_vel;
   }
   inline float gnss_north_acc_m() const {
     return gnss_.payload.north_acc;
@@ -269,13 +280,6 @@ class Vn200 {
   inline float accel_z_mps2() const {
     return comp_imu_.payload.accel_z;
   }
-  inline Eigen::Vector3f accel_mps2() const {
-    Eigen::Vector3f accel;
-    accel(0) = comp_imu_.payload.accel_x;
-    accel(1) = comp_imu_.payload.accel_y;
-    accel(2) = comp_imu_.payload.accel_z;
-    return accel;
-  }
   inline float gyro_x_radps() const {
     return comp_imu_.payload.gyro_x;
   }
@@ -284,13 +288,6 @@ class Vn200 {
   }
   inline float gyro_z_radps() const {
     return comp_imu_.payload.gyro_z;
-  }
-  inline Eigen::Vector3f gyro_radps() const {
-    Eigen::Vector3f gyro;
-    gyro(0) = comp_imu_.payload.gyro_x;
-    gyro(1) = comp_imu_.payload.gyro_y;
-    gyro(2) = comp_imu_.payload.gyro_z;
-    return gyro;
   }
   inline float mag_x_ut() const {
     return comp_imu_.payload.mag_x * 100.0f;
@@ -301,13 +298,6 @@ class Vn200 {
   inline float mag_z_ut() const {
     return comp_imu_.payload.mag_z * 100.0f;
   }
-  inline Eigen::Vector3f mag_ut() const {
-    Eigen::Vector3f mag;
-    mag(0) = comp_imu_.payload.mag_x * 100.0f;
-    mag(1) = comp_imu_.payload.mag_y * 100.0f;
-    mag(2) = comp_imu_.payload.mag_z * 100.0f;
-    return mag;
-  }
   inline float uncomp_accel_x_mps2() const {
     return uncomp_imu_.payload.accel_x;
   }
@@ -316,13 +306,6 @@ class Vn200 {
   }
   inline float uncomp_accel_z_mps2() const {
     return uncomp_imu_.payload.accel_z;
-  }
-  inline Eigen::Vector3f uncomp_accel_mps2() const {
-    Eigen::Vector3f accel;
-    accel(0) = uncomp_imu_.payload.accel_x;
-    accel(1) = uncomp_imu_.payload.accel_y;
-    accel(2) = uncomp_imu_.payload.accel_z;
-    return accel;
   }
   inline float uncomp_gyro_x_radps() const {
     return uncomp_imu_.payload.gyro_x;
@@ -333,13 +316,6 @@ class Vn200 {
   inline float uncomp_gyro_z_radps() const {
     return uncomp_imu_.payload.gyro_z;
   }
-  inline Eigen::Vector3f uncomp_gyro_radps() const {
-    Eigen::Vector3f gyro;
-    gyro(0) = uncomp_imu_.payload.gyro_x;
-    gyro(1) = uncomp_imu_.payload.gyro_y;
-    gyro(2) = uncomp_imu_.payload.gyro_z;
-    return gyro;
-  }
   inline float uncomp_mag_x_ut() const {
     return uncomp_imu_.payload.mag_x * 100.0f;
   }
@@ -348,13 +324,6 @@ class Vn200 {
   }
   inline float uncomp_mag_z_ut() const {
     return uncomp_imu_.payload.mag_z * 100.0f;
-  }
-  inline Eigen::Vector3f uncomp_mag_ut() const {
-    Eigen::Vector3f mag;
-    mag(0) = uncomp_imu_.payload.mag_x * 100.0f;
-    mag(1) = uncomp_imu_.payload.mag_y * 100.0f;
-    mag(2) = uncomp_imu_.payload.mag_z * 100.0f;
-    return mag;
   }
   inline float die_temp_c() const {
     return uncomp_imu_.payload.temp;
@@ -377,6 +346,10 @@ class Vn200 {
   bool ins_imu_error_;
   bool ins_mag_press_error_;
   bool ins_gnss_error_;
+  static constexpr float DEG2RADf_ = 3.14159265358979323846264338327950288f /
+                                     180.0f;
+  static constexpr double DEG2RADl_ = 3.14159265358979323846264338327950288 /
+                                      180.0;
   /* Registers */
   VectorNav::ErrorCode error_code_;
   VnModelNumber model_num_;

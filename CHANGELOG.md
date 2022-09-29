@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.0.0
+- Removed dependency on Eigen and Units library
+
 ## v3.1.0
 - Added default constructor and a Config method to configure the sensor
 

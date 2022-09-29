@@ -29,6 +29,7 @@
 #if defined(ARDUINO)
 #include <Arduino.h>
 #include <SPI.h>
+#include "elapsedMillis.h"
 #else
 #include "core/core.h"
 #endif
@@ -65,7 +66,11 @@ class VectorNav {
   /* Initialize communication */
   void Init() {
     pinMode(cs_, OUTPUT);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
   }
   /* Read register */
   template<class REG>
@@ -78,32 +83,52 @@ class VectorNav {
     }
     /* Read request */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_READ_);
     bus_->transfer(ptr->id);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     empty_ = bus_->transfer(0x00);
     cmd_ = bus_->transfer(0x00);
     arg_ = bus_->transfer(0x00);
     err_ = bus_->transfer(0x00);
     /* Check for errors */
     if (err_ != ERROR_SUCCESS) {
+      #if defined(TEENSYDUINO)
       digitalWriteFast(cs_, HIGH);
+      #else
+      digitalWrite(cs_, HIGH);
+      #endif
       bus_->endTransaction();
       time_since_comm_us_ = 0;
       return static_cast<ErrorCode>(err_);
     }
     /* Read the response data payload */
-    for (std::size_t i = 0; i < sizeof(ptr->payload); i++) {
+    for (size_t i = 0; i < sizeof(ptr->payload); i++) {
       reinterpret_cast<uint8_t *>(&ptr->payload)[i] = bus_->transfer(0x00);
     }
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     return ERROR_SUCCESS;
@@ -121,24 +146,40 @@ class VectorNav {
     }
     /* Write register */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_WRITE_);
     bus_->transfer(ref.id);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
-    for (std::size_t i = 0; i < sizeof(ref.payload); i++) {
+    for (size_t i = 0; i < sizeof(ref.payload); i++) {
       bus_->transfer(reinterpret_cast<const uint8_t *>(&ref.payload)[i]);
     }
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     empty_ = bus_->transfer(0x00);
     cmd_ = bus_->transfer(0x00);
     arg_ = bus_->transfer(0x00);
     err_ = bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     return static_cast<ErrorCode>(err_);
@@ -151,21 +192,37 @@ class VectorNav {
     }
     /* Write settings */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_WRITE_SETTINGS_);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     /* Wait for operation to complete */
     delay(1000);
     /* Read the response buffer header */
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     empty_ = bus_->transfer(0x00);
     cmd_ = bus_->transfer(0x00);
     arg_ = bus_->transfer(0x00);
     err_ = bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     return static_cast<ErrorCode>(err_);
@@ -177,12 +234,20 @@ class VectorNav {
     }
     /* Write register */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_RESTORE_FACTORY_SETTINGS_);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     /* Wait for operation to complete */
@@ -195,21 +260,37 @@ class VectorNav {
     }
     /* Write register */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_TARE_);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     empty_ = bus_->transfer(0x00);
     cmd_ = bus_->transfer(0x00);
     arg_ = bus_->transfer(0x00);
     err_ = bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     return static_cast<ErrorCode>(err_);
@@ -221,12 +302,20 @@ class VectorNav {
     }
     /* Write register */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_RESET_);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     /* Wait for operation to complete */
@@ -239,21 +328,37 @@ class VectorNav {
     }
     /* Write register */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_KNOWN_MAG_DIST_);
     bus_->transfer(present);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     empty_ = bus_->transfer(0x00);
     cmd_ = bus_->transfer(0x00);
     arg_ = bus_->transfer(0x00);
     err_ = bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     return static_cast<ErrorCode>(err_);
@@ -265,21 +370,37 @@ class VectorNav {
     }
     /* Write register */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_KNOWN_ACCEL_DIST_);
     bus_->transfer(present);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     empty_ = bus_->transfer(0x00);
     cmd_ = bus_->transfer(0x00);
     arg_ = bus_->transfer(0x00);
     err_ = bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     return static_cast<ErrorCode>(err_);
@@ -292,21 +413,37 @@ class VectorNav {
     }
     /* Write register */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_SET_GYRO_BIAS_);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     empty_ = bus_->transfer(0x00);
     cmd_ = bus_->transfer(0x00);
     arg_ = bus_->transfer(0x00);
     err_ = bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     return static_cast<ErrorCode>(err_);
@@ -319,21 +456,37 @@ class VectorNav {
     }
     /* Write register */
     bus_->beginTransaction(SPISettings(SPI_CLOCK_, MSBFIRST, SPI_MODE3));
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     bus_->transfer(CMD_SET_FILTER_BIAS_);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
     bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
     /* Read the response buffer header */
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, LOW);
+    #else
+    digitalWrite(cs_, LOW);
+    #endif
     empty_ = bus_->transfer(0x00);
     cmd_ = bus_->transfer(0x00);
     arg_ = bus_->transfer(0x00);
     err_ = bus_->transfer(0x00);
+    #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
+    #else
+    digitalWrite(cs_, HIGH);
+    #endif
     bus_->endTransaction();
     time_since_comm_us_ = 0;
     return static_cast<ErrorCode>(err_);
