@@ -11,7 +11,7 @@ if (DEFINED MCU)
   set(CMAKE_TOOLCHAIN_FILE "${mcu_support_SOURCE_DIR}/cmake/cortex.cmake")
   # Project information
   project(VectorNav
-    VERSION 4.0.0
+    VERSION 4.0.1
     DESCRIPTION "VectorNav driver"
     LANGUAGES CXX
   )
@@ -22,7 +22,7 @@ if (DEFINED MCU)
   FetchContent_Declare(
     core
     GIT_REPOSITORY 	https://github.com/bolderflight/core.git
-    GIT_TAG v3.1.0
+    GIT_TAG v3.1.1
   )
   FetchContent_MakeAvailable(core)
   # Add the library target

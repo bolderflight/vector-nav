@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.0.1
+- Updated core to support MMOD
+
 ## v4.0.0
 - Removed dependency on Eigen and Units library
 
