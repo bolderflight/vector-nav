@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.0.3
+- Updated core to 3.1.3
+
 ## v4.0.2
 - Updated core to 3.1.2
 
