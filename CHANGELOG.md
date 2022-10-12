@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.0.4
+- Fixed bug where VN-300 SetCompassBaseline was expecting a matrix instead of a vector
+
 ## v4.0.3
 - Updated core to 3.1.3
 

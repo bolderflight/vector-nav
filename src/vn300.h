@@ -118,11 +118,10 @@ class Vn300 {
     b[2] = antenna_.payload.position_z;
     return true;
   }
-  template<size_t M, size_t N>
-  bool SetCompassBaseline(const float (&pos)[M][N],
-                          const float (&uncert)[M][N]) {
-    static_assert(M == 3, "Expecting 3 x 3 matrix");
-    static_assert(N == 3, "Expecting 3 x 3 matrix");
+  template<size_t M>
+  bool SetCompassBaseline(const float (&pos)[M],
+                          const float (&uncert)[M]) {
+    static_assert(M == 3, "Expecting 3 x 1 vector");
     baseline_.payload.position_x = pos[0];
     baseline_.payload.position_y = pos[1];
     baseline_.payload.position_z = pos[2];
@@ -132,10 +131,9 @@ class Vn300 {
     error_code_ = vn_.WriteRegister(baseline_);
     return (error_code_ == VectorNav::ERROR_SUCCESS);
   }
-  template<size_t M, size_t N>
-  bool GetCompassBaseline(float (&pos)[M][N], float (&uncert)[M][N]) {
-    static_assert(M == 3, "Expecting 3 x 3 matrix");
-    static_assert(N == 3, "Expecting 3 x 3 matrix");
+  template<size_t M>
+  bool GetCompassBaseline(float (&pos)[M], float (&uncert)[M]) {
+    static_assert(M == 3, "Expecting 3 x 1 vector");
     error_code_ = vn_.ReadRegister(&baseline_);
     if (error_code_ != VectorNav::ERROR_SUCCESS) {return false;}
     pos[0] = baseline_.payload.position_x;

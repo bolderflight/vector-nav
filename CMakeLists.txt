@@ -11,7 +11,7 @@ if (DEFINED MCU)
   set(CMAKE_TOOLCHAIN_FILE "${mcu_support_SOURCE_DIR}/cmake/cortex.cmake")
   # Project information
   project(VectorNav
-    VERSION 4.0.3
+    VERSION 4.0.4
     DESCRIPTION "VectorNav driver"
     LANGUAGES CXX
   )
