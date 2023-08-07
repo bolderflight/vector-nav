@@ -95,7 +95,7 @@ class VectorNav {
     #if defined(TEENSYDUINO)
     digitalWriteFast(cs_, HIGH);
     #else
-    digitalWrite(cs_, LOW);
+    digitalWrite(cs_, HIGH);
     #endif
     /* Wait for VectorNav to fill response buffer */
     delayMicroseconds(WAIT_TIME_US_);
